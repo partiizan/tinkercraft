@@ -32,3 +32,17 @@ Extract the workflow ZIP and then the native archive inside. Replace the previou
 app with this version (0.13.0). Manual Mac GUI testing, OS file dialogs and Bambu
 Studio export remain required. The bundled checkpoint notes predate CI completion;
 this repository records the final results.
+
+## 0.13.1 grouped-object editing fix
+
+The initial automatic cut display switched into the whole-scene preview, which
+had no object picking or transform handles. Groups now render their own Boolean
+geometry in the regular editing viewport, retaining their IDs and handles.
+Move, rotate, uniform resize, add another solid/hole and regroup remain available.
+Ungroup exposes the original components. The explicit Preview full export command
+is still a whole-scene inspection mode; Back to editing exits it.
+
+New regression coverage checks selection through the cut mesh, empty hole picking,
+transformed/resized cut geometry, additional nested cuts, save/reload and undo.
+The native GUI regression now groups the demo plate, drags it, resizes it, undoes
+both operations and ungroups it. Native build validation pending.

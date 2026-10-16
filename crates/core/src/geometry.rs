@@ -270,3 +270,25 @@ pub fn sources(p: &Project) -> Vec<SourceMesh> {
     }
     out
 }
+
+/// Editable top-level objects. Each group displays its scoped Boolean geometry
+/// while retaining its object ID for picking, selection and transform previews.
+/// Hidden children still participate in the group result, just as in export.
+pub fn editable_sources(p: &Project) -> Result<Vec<SourceMesh>> {
+    p.validate()?;
+    p.parts
+        .iter()
+        .filter(|n| !n.hidden)
+        .map(|n| {
+            let solid = match &n.shape {
+                Shape::Group { children, .. } => scope(children)?,
+                _ => primitive(n),
+            };
+            Ok(SourceMesh {
+                id: n.id.clone(),
+                hole: n.hole,
+                mesh: mesh(&solid).transformed(n.matrix()),
+            })
+        })
+        .collect()
+}

@@ -210,3 +210,10 @@ a file through the same validation/review flow. No user projects are modified.
   signing or Apple notarization, so download approval may still be required.
 
 See CHECKPOINT13.md for build evidence and remaining acceptance checks.
+
+### 0.13.1: editable cut groups
+
+Grouped objects display their cuts directly in the editing viewport and retain
+selection and move/rotate/resize handles. Add another solid or hole and regroup to
+continue modeling. Groups currently resize uniformly; ungroup to edit individual
+components. Preview full export is a separate whole-scene inspection mode.

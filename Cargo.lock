@@ -2661,7 +2661,7 @@ dependencies = [
 
 [[package]]
 name = "tinkercraft"
-version = "0.13.0"
+version = "0.13.1"
 dependencies = [
  "anyhow",
  "directories",
@@ -2674,7 +2674,7 @@ dependencies = [
 
 [[package]]
 name = "tinkercraft-cli"
-version = "0.13.0"
+version = "0.13.1"
 dependencies = [
  "anyhow",
  "serde_json",
@@ -2683,7 +2683,7 @@ dependencies = [
 
 [[package]]
 name = "tinkercraft-core"
-version = "0.13.0"
+version = "0.13.1"
 dependencies = [
  "anyhow",
  "glam",

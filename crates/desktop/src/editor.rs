@@ -95,7 +95,8 @@ impl Editor {
                 }
                 let (revision, p) = job;
                 let computed = std::panic::catch_unwind(|| {
-                    let sources = geometry::sources(&p);
+                    let sources =
+                        geometry::editable_sources(&p).unwrap_or_else(|_| geometry::sources(&p));
                     let result = evaluate(&p).map_err(|e| e.to_string());
                     Computed {
                         revision,
@@ -291,23 +292,8 @@ impl Editor {
     }
     fn group_selection(&mut self) {
         self.commit_draft();
-        let previous: Selection = self
-            .history
-            .project
-            .parts
-            .iter()
-            .map(|n| n.id.clone())
-            .collect();
+        // Groups render their own cuts in the editable viewport, not scene preview.
         self.operation(|p, s| Ok(Some(Selection::from([operations::group(p, s)?]))));
-        // Switch only after a group was successfully committed, never on rejected edits.
-        if self.history.project.parts.iter().any(|n| {
-            self.selection.contains(&n.id)
-                && !previous.contains(&n.id)
-                && matches!(n.shape, Shape::Group { .. })
-        }) {
-            self.preview = true;
-            self.redraw = true;
-        }
     }
     fn select(&mut self, id: String, toggle: bool) {
         self.commit_draft();
@@ -714,7 +700,7 @@ if ui.add_enabled(self.selection.len()==1,egui::Button::new("Ungroup")).clicked(
  });
  ui.small("Hide affects editing view only; all objects are included in cuts/export.");
 
- ui.separator();if ui.add_enabled(self.result.is_some(),egui::Button::new(if self.preview{"Edit shapes"}else{"Show cut result"})).clicked(){self.preview = !self.preview;self.redraw=true;}ui.label(egui::RichText::new("Each group unions its solids and subtracts its holes.").small());if ui.button("Load plate example").clicked(){self.request(Pending::Demo)}ui.separator();ui.label("Drag background: orbit\nRight-drag: pan\nScroll: zoom\nShift-click: multiselect\nW / E / R: move / rotate / resize\nEsc: cancel handle drag");});});
+ ui.separator();if ui.add_enabled(self.result.is_some(),egui::Button::new(if self.preview{"Back to editing"}else{"Preview full export"})).clicked(){self.preview = !self.preview;self.redraw=true;}ui.label(egui::RichText::new("Each group unions its solids and subtracts its holes.").small());if ui.button("Load plate example").clicked(){self.request(Pending::Demo)}ui.separator();ui.label("Drag background: orbit\nRight-drag: pan\nScroll: zoom\nShift-click: multiselect\nW / E / R: move / rotate / resize\nEsc: cancel handle drag");});});
     }
     fn inspector(&mut self, ctx: &egui::Context) {
         egui::SidePanel::right("inspector").exact_width(245.).show(ctx,|ui|{egui::ScrollArea::vertical().show(ui,|ui|{
