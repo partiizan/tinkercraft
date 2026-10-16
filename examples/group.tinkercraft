@@ -1,0 +1,90 @@
+{
+  "format": "shapeworkshop",
+  "version": 3,
+  "units": "mm",
+  "name": "Grouped plate",
+  "parts": [
+    {
+      "id": "group",
+      "name": "Group",
+      "kind": "group",
+      "hole": false,
+      "position": [
+        40,
+        15,
+        2.5
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "scale": 1,
+      "children": [
+        {
+          "id": "plate",
+          "name": "Plate",
+          "kind": "box",
+          "hole": false,
+          "size": [
+            80,
+            30,
+            5
+          ],
+          "position": [
+            0,
+            0,
+            0
+          ],
+          "rotation": [
+            0,
+            0,
+            0
+          ]
+        },
+        {
+          "id": "left",
+          "name": "Left hole",
+          "kind": "cylinder",
+          "hole": true,
+          "size": [
+            5,
+            5,
+            9
+          ],
+          "position": [
+            -30,
+            0,
+            0
+          ],
+          "rotation": [
+            0,
+            0,
+            0
+          ]
+        },
+        {
+          "id": "right",
+          "name": "Right hole",
+          "kind": "cylinder",
+          "hole": true,
+          "size": [
+            5,
+            5,
+            9
+          ],
+          "position": [
+            30,
+            0,
+            0
+          ],
+          "rotation": [
+            0,
+            0,
+            0
+          ]
+        }
+      ]
+    }
+  ]
+}

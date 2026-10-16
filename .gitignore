@@ -1,0 +1,7 @@
+/target/
+/dist/
+*.ppm
+*.png
+
+__pycache__/
+*.pyc

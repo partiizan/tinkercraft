@@ -1,0 +1,13 @@
+[package]
+name = "tinkercraft-core"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+[dependencies]
+serde.workspace = true
+serde_json.workspace = true
+glam.workspace = true
+anyhow.workspace = true
+manifold-rust = "=0.16.0"
+uuid = { version = "1", features = ["v4"] }
+tempfile = "3"

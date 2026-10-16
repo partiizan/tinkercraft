@@ -1,0 +1,71 @@
+{
+  "format": "shapeworkshop",
+  "version": 6,
+  "units": "mm",
+  "name": "Wedge and roof sample",
+  "parts": [
+    {
+      "id": "wedge-example",
+      "name": "Sloped wedge",
+      "kind": "wedge",
+      "position": [
+        20,
+        15,
+        10
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "size": [
+        30,
+        25,
+        20
+      ],
+      "hole": false
+    },
+    {
+      "id": "roof-example",
+      "name": "Pitched roof",
+      "kind": "roof",
+      "position": [
+        70,
+        15,
+        10
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "size": [
+        40,
+        30,
+        20
+      ],
+      "hole": false
+    },
+    {
+      "id": "cylinder-example",
+      "name": "Wedge bore",
+      "kind": "cylinder",
+      "position": [
+        10,
+        15,
+        10
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "size": [
+        8,
+        8,
+        25
+      ],
+      "hole": true
+    }
+  ]
+}
