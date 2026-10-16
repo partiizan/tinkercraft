@@ -44,7 +44,7 @@ def stage_release(root,stage,system,arch,version,evidence,sign_macos=False):
         shutil.copy2(root/'assets/TinkerCraft.ico',stage/'TinkerCraft.ico')
     cli=stage/sources[1].name;shutil.copy2(sources[1],cli)
     if system!='Windows':app.chmod(0o755);cli.chmod(0o755)
-    for name in ('README.md','LICENSE','THIRD_PARTY.md','MIGRATION.md','ROADMAP.md','CHECKPOINTS.md','CHECKPOINT10.md','RELEASE.md'):
+    for name in ('README.md','LICENSE','THIRD_PARTY.md','MIGRATION.md','ROADMAP.md','CHECKPOINTS.md','CHECKPOINT10.md','CHECKPOINT12.md','CHECKPOINT13.md','RELEASE.md'):
         if (root/name).exists():shutil.copy2(root/name,stage/name)
     for name in ('examples','dependency-licenses'):shutil.copytree(root/name,stage/name)
     shutil.copy2(root/'dependency-licenses.csv',stage/'dependency-licenses.csv')
