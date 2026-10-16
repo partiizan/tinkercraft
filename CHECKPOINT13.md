@@ -45,4 +45,10 @@ is still a whole-scene inspection mode; Back to editing exits it.
 New regression coverage checks selection through the cut mesh, empty hole picking,
 transformed/resized cut geometry, additional nested cuts, save/reload and undo.
 The native GUI regression now groups the demo plate, drags it, resizes it, undoes
-both operations and ungroups it. Native build validation pending.
+both operations and ungroups it.
+
+Validation: all three native jobs passed in
+[run 38975882427](https://github.com/partiizan/tinkercraft/actions/runs/38975882427)
+for source commit 40ae6a0. All 40 engine tests and packaging checks passed, as did
+Mac signature verification and the Linux grouped move/resize UI regression.
+Manual testing of this updated Mac package remains open.
