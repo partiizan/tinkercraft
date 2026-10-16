@@ -1,4 +1,4 @@
-# TinkerCraft 0.11.0 — local modeling MVP release candidate
+# TinkerCraft 0.13.0 — local modeling MVP release candidate
 
 This checkpoint completes release preparation, not certification on every OS.
 The application targets native macOS (Apple Silicon), Windows x64 and Linux x64.
@@ -12,18 +12,19 @@ Circuits, code blocks and cloud/classroom functionality are excluded.
 | macOS Apple Silicon | Native CI release build passed | Engine tests and packaged CLI passed; interactive GUI pending | Real ARM64 app bundle verified |
 | Windows x64 | Native MSVC CI release build passed | Engine tests and packaged CLI passed; interactive GUI pending | Real x64 ZIP verified |
 
-Checkpoint 12 evidence: [successful native run](https://github.com/partiizan/tinkercraft/actions/runs/38957322621),
-source commit `8278f72e999c79c50b488c57695569d62de3e877` (2026-10-16).
+Checkpoint 13 evidence: [successful native run](https://github.com/partiizan/tinkercraft/actions/runs/38960079249),
+source commit `f6ed178bceff8007d2fec896a186369e1b61fce4` (2026-10-16).
 All three jobs passed formatting, 37 engine tests, Clippy, four packaging tests,
 release compilation, packaging and extracted executable probes. Linux also passed
 its automated native window regression. These checks do not attest Mac or Windows
 GUI behavior or real file-dialog/slicer integration.
 
-Download native packages from that run's Artifacts section; see CHECKPOINT12.md.
+Download native packages from that run's Artifacts section; see CHECKPOINT13.md.
 Before calling this a cross-platform MVP release, finish the desktop acceptance
-checklist below. Packages are unsigned and unnotarized.
+checklist below. Mac bundles are ad-hoc signed and verified before and after packaging, but not
+Developer ID signed or notarized. Windows executables are unsigned.
 The documentation bundled in the initial CI archives predates these results;
-this repository's RELEASE.md and CHECKPOINT12.md contain the updated evidence.
+this repository's RELEASE.md and CHECKPOINT13.md contain the updated evidence.
 
 ## Build and verify on your native platform
 

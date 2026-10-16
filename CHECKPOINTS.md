@@ -59,3 +59,11 @@ runner's missing libxkbcommon-x11 runtime dependency and documented it for users
 Mac ARM64, Windows x64 and Linux x64 packages are available as workflow artifacts.
 See CHECKPOINT12.md for evidence and download instructions. Interactive Mac/Windows,
 OS file-dialog and slicer acceptance remain open.
+
+## Checkpoint 13: complete — 0.13.0
+
+Illustrated primitive palette, automatic cut-result display after successful
+Group/button or keyboard, matte toolbox app icon, and assembled Mac bundle signing.
+All three native jobs passed, including staged/extracted Mac codesign validation
+and Linux GUI regression. See CHECKPOINT13.md for downloads and remaining manual
+acceptance. Ad-hoc signing does not replace Developer ID signing/notarization.
