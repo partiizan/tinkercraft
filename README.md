@@ -31,7 +31,7 @@ and editing/exporting models do not.
 - **Linux:** an X11 display or XWayland, OpenGL-capable driver, and XDG desktop portal
   with a working file-picker backend are required. On Debian/Ubuntu install
   `build-essential pkg-config libx11-dev libxi-dev libxrandr-dev libxcursor-dev
-  libxinerama-dev libgl1-mesa-dev libxkbcommon-dev libwayland-dev xdg-desktop-portal`.
+  libxinerama-dev libgl1-mesa-dev libxkbcommon-dev libxkbcommon-x11-0 libwayland-dev xdg-desktop-portal`.
   Your desktop should supply the matching portal backend (GTK, KDE, etc.).
 
 ## Build distributable packages
