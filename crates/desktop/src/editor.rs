@@ -289,6 +289,26 @@ impl Editor {
             Err(e) => self.status = e.to_string(),
         }
     }
+    fn group_selection(&mut self) {
+        self.commit_draft();
+        let previous: Selection = self
+            .history
+            .project
+            .parts
+            .iter()
+            .map(|n| n.id.clone())
+            .collect();
+        self.operation(|p, s| Ok(Some(Selection::from([operations::group(p, s)?]))));
+        // Switch only after a group was successfully committed, never on rejected edits.
+        if self.history.project.parts.iter().any(|n| {
+            self.selection.contains(&n.id)
+                && !previous.contains(&n.id)
+                && matches!(n.shape, Shape::Group { .. })
+        }) {
+            self.preview = true;
+            self.redraw = true;
+        }
+    }
     fn select(&mut self, id: String, toggle: bool) {
         self.commit_draft();
         if !toggle {
@@ -677,8 +697,8 @@ impl Editor {
     }
     fn left(&mut self, ctx: &egui::Context) {
         egui::SidePanel::left("objects").exact_width(215.).show(ctx,|ui|{egui::ScrollArea::vertical().show(ui,|ui|{ui.heading("Project");let response=ui.text_edit_singleline(&mut self.name);if response.lost_focus(){self.commit_draft();}ui.horizontal(|ui|{if ui.add_enabled(self.history.can_undo(),egui::Button::new("Undo")).clicked(){self.history.undo();self.refresh();}
-if ui.add_enabled(self.history.can_redo(),egui::Button::new("Redo")).clicked(){self.history.redo();self.refresh();}});ui.separator();ui.heading("Add a shape");egui::Grid::new("palette").num_columns(2).show(ui,|ui|{for(i,kind)in["Box","Cylinder","Sphere","Cone","Wedge","Roof"].iter().enumerate(){if ui.add_sized([90.,44.],egui::Button::new(*kind)).clicked(){let n=Node::primitive(kind);let id=n.id.clone();let mut p=self.history.project.clone();p.parts.push(n);self.selection=Selection::from([id]);self.commit(p);}
-if i%2==1{ui.end_row();}}});ui.separator();ui.heading(format!("Objects · {}",self.history.project.parts.len()));if ui.button("Select all").clicked(){self.selection=self.history.project.parts.iter().filter(|n|!n.hidden&&!n.has_locked()).map(|p|p.id.clone()).collect();self.draft=None;self.redraw=true;}ui.horizontal(|ui|{if ui.add_enabled(self.selection.len()>=2,egui::Button::new("Group")).clicked(){self.operation(|p,s|Ok(Some(Selection::from([operations::group(p,s)?]))));}
+if ui.add_enabled(self.history.can_redo(),egui::Button::new("Redo")).clicked(){self.history.redo();self.refresh();}});ui.separator();ui.heading("Add a shape");egui::Grid::new("palette").num_columns(2).show(ui,|ui|{for(i,kind)in["Box","Cylinder","Sphere","Cone","Wedge","Roof"].iter().enumerate(){if crate::palette::button(ui, kind).clicked(){let n=Node::primitive(kind);let id=n.id.clone();let mut p=self.history.project.clone();p.parts.push(n);self.selection=Selection::from([id]);self.commit(p);}
+if i%2==1{ui.end_row();}}});ui.separator();ui.heading(format!("Objects · {}",self.history.project.parts.len()));if ui.button("Select all").clicked(){self.selection=self.history.project.parts.iter().filter(|n|!n.hidden&&!n.has_locked()).map(|p|p.id.clone()).collect();self.draft=None;self.redraw=true;}ui.horizontal(|ui|{if ui.add_enabled(self.selection.len()>=2,egui::Button::new("Group")).clicked(){self.group_selection();}
 if ui.add_enabled(self.selection.len()==1,egui::Button::new("Ungroup")).clicked(){self.operation(|p,s|Ok(Some(operations::ungroup(p,s.iter().next().unwrap())?)));}});
  for n in self.history.project.parts.clone(){
     let label=format!("{} {}{}{}",if n.hole{"H"}else{"S"},n.name,if n.hidden{" [hidden]"}else{""},if n.has_locked(){" [locked]"}else{""});
@@ -736,7 +756,7 @@ if ui.button("Delete").clicked(){self.operation(|p,s|{p.parts.retain(|n|!s.conta
                 Ok(Some(operations::ungroup(p, id)?))
             });
         } else if ctx.input_mut(|i| i.consume_key(cmd, egui::Key::G)) {
-            self.operation(|p, s| Ok(Some(Selection::from([operations::group(p, s)?]))));
+            self.group_selection();
         }
         if ctx.input_mut(|i| i.consume_key(egui::Modifiers { shift: true, ..cmd }, egui::Key::Z)) {
             if self.history.redo() {

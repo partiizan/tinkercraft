@@ -34,6 +34,7 @@ def inspect(archive):
     if m['platform']=='Darwin':
         plist=plistlib.loads(contents[prefix+'TinkerCraft.app/Contents/Info.plist'])
         if plist['CFBundleShortVersionString']!=m['version'] or plist['CFBundleExecutable']!='tinkercraft':raise ValueError('Mac bundle metadata mismatch')
+        if plist.get('CFBundleIconFile')!='TinkerCraft.icns' or prefix+'TinkerCraft.app/Contents/Resources/TinkerCraft.icns' not in contents:raise ValueError('Mac icon missing')
     return m,prefix,contents
 
 def main():
@@ -46,6 +47,8 @@ def main():
             for name,data in contents.items():
                 p=folder.joinpath(*PurePosixPath(name).parts);p.parent.mkdir(parents=True,exist_ok=True);p.write_bytes(data)
             cli=folder/(prefix+m['cli']);app=folder/(prefix+m['desktop']);cli.chmod(0o755);app.chmod(0o755)
+            if m['platform']=='Darwin':
+                subprocess.run(['codesign','--verify','--deep','--strict','--verbose=2',str(folder/(prefix+'TinkerCraft.app'))],check=True)
             # The runtime probe uses the extracted package and no repository working directory.
             env=os.environ.copy();env.pop('CARGO_MANIFEST_DIR',None)
             probe=json.loads(subprocess.check_output([str(cli),'self-test'],cwd=folder,env=env,text=True))

@@ -18,6 +18,8 @@ def prepare(folder,system):
     for name in ['examples','dependency-licenses']:(root/name).mkdir();(root/name/'fixture.txt').write_text('fixture')
     (root/'dependency-licenses.csv').write_text('crate,license\n')
     (root/'README.md').write_text('test fixture')
+    (root/'assets').mkdir()
+    for name in ['TinkerCraft.icns','TinkerCraft.ico']:(root/'assets'/name).write_bytes(b'icon fixture')
     return root
 
 def archive(stage,path):

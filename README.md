@@ -197,3 +197,16 @@ After building release binaries, install Xvfb and xdotool, then run
 `python3 scripts/native-smoke.py`. It uses isolated app data and a 1440×960 display
 at default UI scale. File-picker integration is separate; the import test launches
 a file through the same validation/review flow. No user projects are modified.
+
+## Checkpoint 13 — 0.13.0
+
+- Group (button or Cmd/Ctrl-G) automatically switches to the cut result after a
+  successful grouping. Use Edit shapes or Ungroup to return to source geometry.
+- Shape buttons show the name above a matching miniature shape.
+- Matte toolbox icon is embedded in the native window and Mac app bundle. A Windows
+  ICO is included in the package for shortcuts; the EXE file resource icon is not embedded.
+- macOS packaging ad-hoc signs the complete bundle, verifies it before archiving,
+  and verifies the extracted bundle again. Ad-hoc signing is not Developer ID
+  signing or Apple notarization, so download approval may still be required.
+
+See CHECKPOINT13.md for build evidence and remaining acceptance checks.

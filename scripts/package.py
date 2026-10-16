@@ -16,7 +16,7 @@ def binary_target(data):
 def architecture():
     return {'AMD64':'x86_64','arm64':'aarch64'}.get(platform.machine(),platform.machine())
 
-def stage_release(root,stage,system,arch,version,evidence):
+def stage_release(root,stage,system,arch,version,evidence,sign_macos=False):
     suffix='.exe' if system=='Windows' else ''
     sources=[root/'target/release'/('tinkercraft'+suffix),root/'target/release'/('tinkercraft-cli'+suffix)]
     for path in sources:
@@ -28,11 +28,20 @@ def stage_release(root,stage,system,arch,version,evidence):
         with (contents/'Info.plist').open('wb') as f:
             plistlib.dump({'CFBundleName':'TinkerCraft','CFBundleDisplayName':'TinkerCraft',
                           'CFBundleIdentifier':'com.tinkercraft.native','CFBundleExecutable':'tinkercraft',
-                          'CFBundlePackageType':'APPL','CFBundleShortVersionString':version,
+                          'CFBundleIconFile':'TinkerCraft.icns','CFBundlePackageType':'APPL','CFBundleShortVersionString':version,
                           'CFBundleVersion':version,'NSHighResolutionCapable':True,
                           'NSHumanReadableCopyright':'TinkerCraft contributors'},f)
     else:
         app=stage/sources[0].name;shutil.copy2(sources[0],app)
+    if system=='Darwin':
+        resources=stage/'TinkerCraft.app/Contents/Resources';resources.mkdir()
+        shutil.copy2(root/'assets/TinkerCraft.icns',resources/'TinkerCraft.icns')
+        if sign_macos:
+            bundle=stage/'TinkerCraft.app'
+            subprocess.run(['codesign','--force','--sign','-',str(bundle)],check=True)
+            subprocess.run(['codesign','--verify','--deep','--strict','--verbose=2',str(bundle)],check=True)
+    else:
+        shutil.copy2(root/'assets/TinkerCraft.ico',stage/'TinkerCraft.ico')
     cli=stage/sources[1].name;shutil.copy2(sources[1],cli)
     if system!='Windows':app.chmod(0o755);cli.chmod(0o755)
     for name in ('README.md','LICENSE','THIRD_PARTY.md','MIGRATION.md','ROADMAP.md','CHECKPOINTS.md','CHECKPOINT10.md','RELEASE.md'):
@@ -59,7 +68,7 @@ def main():
     if subprocess.check_output([str(app),'--version'],text=True).strip()!=f'TinkerCraft {version}':raise ValueError('Desktop version mismatch')
     stage=out/f'TinkerCraft-{system}-{arch}'
     if stage.exists():shutil.rmtree(stage)
-    stage_release(root,stage,system,arch,version,evidence)
+    stage_release(root,stage,system,arch,version,evidence,sign_macos=system=='Darwin')
     if system=='Linux':
         archive=stage.with_suffix('.tar.gz')
         with tarfile.open(archive,'w:gz') as t:t.add(stage,arcname=stage.name)
