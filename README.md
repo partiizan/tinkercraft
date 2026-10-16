@@ -52,9 +52,10 @@ for the operating system on which it runs:
 | Linux | tar.gz containing both native executables |
 
 `.github/workflows/build.yml` runs tests and native release builds on macOS,
-Windows and Linux, then uploads packages as workflow artifacts. Put this folder at
-the root of a GitHub repository to enable it. The workflow is supplied, **not yet
-executed on GitHub**. The source archive does not contain signed installers.
+Windows and Linux, then uploads packages as workflow artifacts.
+See [GitHub Actions](https://github.com/partiizan/tinkercraft/actions) and
+CHECKPOINT12.md for native build results and download instructions.
+The packages do not contain signed installers.
 Mac signing/notarization and Windows Authenticode signing are not configured.
 Do not distribute development packages as signed or production-verified releases.
 

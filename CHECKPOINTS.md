@@ -1,4 +1,4 @@
-# TinkerCraft checkpoints 10–11 — 0.11.0
+# TinkerCraft checkpoints 10–12 — 0.11.0
 
 ## Checkpoint 10: complete
 
@@ -50,3 +50,12 @@ Windows application is included. Follow README.md and RELEASE.md to build locall
 Only local modeling/object management for 3D printing is in scope. Circuits,
 code blocks, classrooms, accounts and cloud collaboration remain excluded.
 Pause after this delivery for the user's next weekly-usage reading.
+
+## Checkpoint 12: native build and package validation complete
+
+Source transferred to partiizan/tinkercraft. All three native GitHub Actions jobs
+passed at commit 8278f72e999c79c50b488c57695569d62de3e877. Fixed the Linux
+runner's missing libxkbcommon-x11 runtime dependency and documented it for users.
+Mac ARM64, Windows x64 and Linux x64 packages are available as workflow artifacts.
+See CHECKPOINT12.md for evidence and download instructions. Interactive Mac/Windows,
+OS file-dialog and slicer acceptance remain open.

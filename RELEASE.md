@@ -8,18 +8,22 @@ Circuits, code blocks and cloud/classroom functionality are excluded.
 
 | Target | Compile/build | Runtime | Package |
 |---|---|---|---|
-| Linux x86-64 | Native release build passed | Engine tests, CLI and native X11 UI smoke passed | Real archive verified and extracted executables tested |
-| macOS Apple Silicon | Rust cross-target compile check passed | Not run on a Mac | Bundle layout tested using synthetic headers; real native bundle pending |
-| Windows x64 | Rust GNU and MSVC cross-target compile checks passed | Not run on Windows | ZIP layout tested using synthetic headers; real MSVC native build pending |
+| Linux x86-64 | Native CI release build passed | Engine tests, packaged CLI and native X11 GUI regression passed | Real archive verified and extracted executables tested |
+| macOS Apple Silicon | Native CI release build passed | Engine tests and packaged CLI passed; interactive GUI pending | Real ARM64 app bundle verified |
+| Windows x64 | Native MSVC CI release build passed | Engine tests and packaged CLI passed; interactive GUI pending | Real x64 ZIP verified |
 
-The GitHub workflow builds on each native OS, runs tests and the packaged CLI probe,
-and produces platform archives. It also runs Linux GUI regression tests. It is
-included in source but has not been executed on GitHub. It does not attest Mac or
-Windows GUI behavior. Cross-target checking does not link a runnable executable.
+Checkpoint 12 evidence: [successful native run](https://github.com/partiizan/tinkercraft/actions/runs/38957322621),
+source commit `8278f72e999c79c50b488c57695569d62de3e877` (2026-10-16).
+All three jobs passed formatting, 37 engine tests, Clippy, four packaging tests,
+release compilation, packaging and extracted executable probes. Linux also passed
+its automated native window regression. These checks do not attest Mac or Windows
+GUI behavior or real file-dialog/slicer integration.
 
-Before calling this a cross-platform MVP release, run the checklist below on a Mac,
-a Windows computer and a normal Linux desktop, resolve failures and record results.
-No prebuilt Mac/Windows binary is included. Packages are unsigned and unnotarized.
+Download native packages from that run's Artifacts section; see CHECKPOINT12.md.
+Before calling this a cross-platform MVP release, finish the desktop acceptance
+checklist below. Packages are unsigned and unnotarized.
+The documentation bundled in the initial CI archives predates these results;
+this repository's RELEASE.md and CHECKPOINT12.md contain the updated evidence.
 
 ## Build and verify on your native platform
 

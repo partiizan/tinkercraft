@@ -8,10 +8,10 @@ bounded implementation/test/delivery milestone; effort varies substantially.
 Implementation checkpoints 10 and 11 deliver visibility/locks, saved preferences,
 keyboard movement, group drop, fit-selection and verified release packaging.
 
-Remaining acceptance gate: native Mac and Windows builds/runtime checks, plus real
-OS file-dialog and slicer-export checks on all targets. The supplied CI workflow
-can perform native build/CLI checks once run in a repository; GUI acceptance still
-needs target desktops. Reserve one or two fix checkpoints if acceptance finds bugs.
+Checkpoint 12 runs native builds and packaged CLI checks in GitHub Actions.
+Remaining acceptance gate: Mac and Windows interactive GUI checks, plus real
+OS file-dialog and slicer-export checks on all targets. See CHECKPOINT12.md for
+CI evidence; GUI acceptance still needs target desktops. Reserve one or two fix checkpoints if acceptance finds bugs.
 Do not describe compile-only checks as a completed cross-platform release.
 
 ## Broad 3D-editor parity: approximately 12–20 further checkpoints after MVP
