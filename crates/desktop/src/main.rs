@@ -7,6 +7,13 @@ fn main() -> eframe::Result {
         println!("TinkerCraft {}", env!("CARGO_PKG_VERSION"));
         return Ok(());
     }
+    let args: Vec<_> = std::env::args_os().collect();
+    let smoke_report = if args.get(1).is_some_and(|a| a == "--smoke-test") {
+        assert_eq!(args.len(), 3, "Usage: tinkercraft --smoke-test REPORT.json");
+        Some(std::path::PathBuf::from(&args[2]))
+    } else {
+        None
+    };
     let options = eframe::NativeOptions {
         viewport: egui::ViewportBuilder::default()
             .with_title("TinkerCraft")
@@ -22,6 +29,6 @@ fn main() -> eframe::Result {
     eframe::run_native(
         "TinkerCraft",
         options,
-        Box::new(|cc| Ok(Box::new(editor::Editor::new(cc)))),
+        Box::new(move |cc| Ok(Box::new(editor::Editor::new(cc, smoke_report)))),
     )
 }

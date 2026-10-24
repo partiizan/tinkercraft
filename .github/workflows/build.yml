@@ -42,8 +42,12 @@ jobs:
         run: python scripts/validate_3mf.py multicolor-test.3mf --reference
       - name: Package native application
         run: python scripts/package.py
-      - name: Verify extracted native package
-        run: python scripts/verify_all_releases.py
+      - name: Verify extracted native package and window (Linux)
+        if: runner.os == 'Linux'
+        run: xvfb-run -a python scripts/verify_all_releases.py --window-smoke
+      - name: Verify extracted native package and window (Mac/Windows)
+        if: runner.os != 'Linux'
+        run: python scripts/verify_all_releases.py --window-smoke
       - name: Linux native window regression
         if: runner.os == 'Linux'
         run: python scripts/native-smoke.py
@@ -51,3 +55,31 @@ jobs:
         with:
           name: TinkerCraft-${{ runner.os }}-${{ runner.arch }}
           path: dist/*
+
+  release:
+    needs: native
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    concurrency:
+      group: publish-mvp
+      cancel-in-progress: false
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: TinkerCraft-*
+          path: release-assets
+          merge-multiple: true
+      - name: Publish verified version once
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          version=$(python3 -c 'import tomllib; print(tomllib.load(open("Cargo.toml", "rb"))["workspace"]["package"]["version"])')
+          if gh release view "v$version" >/dev/null 2>&1; then
+            echo "Version already published; keeping its immutable assets."
+            exit 0
+          fi
+          gh release create "v$version" release-assets/* --target "$GITHUB_SHA" --title "TinkerCraft $version — local modeling MVP" --notes-file RELEASE-NOTES.md

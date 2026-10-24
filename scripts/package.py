@@ -44,7 +44,7 @@ def stage_release(root,stage,system,arch,version,evidence,sign_macos=False):
         shutil.copy2(root/'assets/TinkerCraft.ico',stage/'TinkerCraft.ico')
     cli=stage/sources[1].name;shutil.copy2(sources[1],cli)
     if system!='Windows':app.chmod(0o755);cli.chmod(0o755)
-    for name in ('README.md','LICENSE','THIRD_PARTY.md','MIGRATION.md','ROADMAP.md','CHECKPOINTS.md','CHECKPOINT10.md','CHECKPOINT12.md','CHECKPOINT13.md','CHECKPOINT14.md','CHECKPOINT15.md','RELEASE.md'):
+    for name in ('README.md','LICENSE','THIRD_PARTY.md','MIGRATION.md','ROADMAP.md','CHECKPOINTS.md','CHECKPOINT10.md','CHECKPOINT12.md','CHECKPOINT13.md','CHECKPOINT14.md','CHECKPOINT15.md','CHECKPOINT16.md','CHECKPOINT17.md','QUICKSTART.md','RELEASE-NOTES.md','RELEASE.md'):
         if (root/name).exists():shutil.copy2(root/name,stage/name)
     for name in ('examples','dependency-licenses'):shutil.copytree(root/name,stage/name)
     shutil.copy2(root/'dependency-licenses.csv',stage/'dependency-licenses.csv')
@@ -66,14 +66,14 @@ def main():
     evidence=json.loads(subprocess.check_output([str(cli),'self-test'],text=True))
     if evidence.get('self_test')!='passed' or evidence.get('version')!=version:raise ValueError('Build version/self-test mismatch')
     if subprocess.check_output([str(app),'--version'],text=True).strip()!=f'TinkerCraft {version}':raise ValueError('Desktop version mismatch')
-    stage=out/f'TinkerCraft-{system}-{arch}'
+    stage=out/f'TinkerCraft-{version}-{system}-{arch}'
     if stage.exists():shutil.rmtree(stage)
     stage_release(root,stage,system,arch,version,evidence,sign_macos=system=='Darwin')
     if system=='Linux':
-        archive=stage.with_suffix('.tar.gz')
+        archive=stage.with_name(stage.name+'.tar.gz')
         with tarfile.open(archive,'w:gz') as t:t.add(stage,arcname=stage.name)
     else:
-        archive=stage.with_suffix('.zip')
+        archive=stage.with_name(stage.name+'.zip')
         with zipfile.ZipFile(archive,'w',zipfile.ZIP_DEFLATED) as z:
             for p in sorted(stage.rglob('*')):
                 if p.is_file():z.write(p,p.relative_to(out))

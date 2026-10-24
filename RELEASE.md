@@ -1,30 +1,21 @@
-# TinkerCraft 0.15.0 — local modeling MVP release candidate
+# TinkerCraft 0.16.0 — local modeling MVP
 
-This checkpoint completes release preparation, not certification on every OS.
-The application targets native macOS (Apple Silicon), Windows x64 and Linux x64.
-Circuits, code blocks and cloud/classroom functionality are excluded.
+Rust-native portable packages target Apple Silicon macOS, Windows x64 and Linux x64.
+Download from https://github.com/partiizan/tinkercraft/releases/latest and follow
+QUICKSTART.md. See RELEASE-NOTES.md and checkpoints 16–17 for this release.
 
-## Evidence and remaining gates
+Publication requires all three native jobs to pass tests, static analysis, packaging,
+extracted CLI execution and a real native-window framebuffer check. Linux additionally
+runs mouse/keyboard modeling and recovery regression. These checks do not substitute
+for hands-on Mac/Windows file-dialog and shortcut testing on user hardware.
 
-| Target | Compile/build | Runtime | Package |
-|---|---|---|---|
-| Linux x86-64 | Native CI release build passed | Engine tests, packaged CLI and native X11 GUI regression passed | Real archive verified and extracted executables tested |
-| macOS Apple Silicon | Native CI release build passed | Engine tests and packaged CLI passed; interactive GUI pending | Real ARM64 app bundle verified |
-| Windows x64 | Native MSVC CI release build passed | Engine tests and packaged CLI passed; interactive GUI pending | Real x64 ZIP verified |
+Official Bambu Studio 02.08.02.61 imports the STL and 3MF fixture with the expected
+80 × 30 × 5 mm dimensions, manifold geometry and two separate parts in the 3MF.
+Generic RGB materials are not mapped automatically to Bambu filaments; manual
+assignment is required. Physical printing has not been tested.
 
-Checkpoints 14–15 evidence: [successful native run](https://github.com/partiizan/tinkercraft/actions/runs/40141986776),
-source commit `a0a886789aed6e0911f08ccfd55d6d3040f440ba` (2026-10-24).
-All three jobs passed formatting, 46 engine tests, Clippy, four packaging tests,
-release compilation, packaging and extracted executable probes. Linux also passed
-its automated native window regression. These checks do not attest Mac or Windows
-GUI behavior or real file-dialog/slicer integration.
-
-Download native packages from that run's Artifacts section; see CHECKPOINT15.md.
-Before calling this a cross-platform MVP release, finish the desktop acceptance
-checklist below. Mac bundles are ad-hoc signed and verified before and after packaging, but not
-Developer ID signed or notarized. Windows executables are unsigned.
-The documentation bundled in the initial CI archives predates these results;
-this repository's RELEASE.md and CHECKPOINT15.md contain the updated evidence.
+Mac bundles are ad-hoc signed and verified, but not Developer ID signed/notarized.
+Windows executables are unsigned. No installer or automatic updater is included.
 
 ## Build and verify on your native platform
 
@@ -67,9 +58,8 @@ entry point without opening a window; it is not a graphics test.
 - Run from the extracted package without the source tree and without network access.
 
 Linux file-picker interaction was not exercised in the headless Xvfb container;
-a working desktop portal backend is required. Bambu Studio slicing and an actual
-print have not been verified. No code-signing, installer or automatic updater is
-included in this local-tool MVP candidate.
+a working desktop portal backend is required. Bambu Studio model import is verified, but slicing and an actual print have not
+been verified. No distribution certificate, installer or automatic updater is included.
 
 ## Checkpoint 11 hardening
 

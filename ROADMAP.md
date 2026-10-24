@@ -3,16 +3,13 @@
 These are scope estimates, not token or weekly-usage estimates. A checkpoint is a
 bounded implementation/test/delivery milestone; effort varies substantially.
 
-## MVP release candidate after checkpoint 11
+## MVP implementation complete in 0.16.0
 
-Implementation checkpoints 10 and 11 deliver visibility/locks, saved preferences,
-keyboard movement, group drop, fit-selection and verified release packaging.
-
-Checkpoint 12 runs native builds and packaged CLI checks in GitHub Actions.
-Remaining acceptance gate: Mac and Windows interactive GUI checks, plus real
-OS file-dialog and slicer-export checks on all targets. See CHECKPOINT12.md for
-CI evidence; GUI acceptance still needs target desktops. Reserve one or two fix checkpoints if acceptance finds bugs.
-Do not describe compile-only checks as a completed cross-platform release.
+Checkpoints 16–17 complete packaged native-window verification, Bambu Studio model
+import validation, export shutdown safety, versioned releases and the quick start.
+Release publication requires the native Mac, Windows and Linux CI jobs to pass.
+Hands-on OS file-dialog/shortcut acceptance and physical printing remain unverified;
+see RELEASE.md. Any bugs found there are maintenance work, not new feature scope.
 
 ## Broad 3D-editor parity: approximately 12–20 further checkpoints after MVP
 

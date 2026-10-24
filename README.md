@@ -1,14 +1,15 @@
-# TinkerCraft — native Rust edition 0.11
+# TinkerCraft — native Rust edition 0.16.0
 
 A local, cross-platform solid-modeling editor. The application and modeling engine
 are written in Rust. It uses egui/eframe for the native desktop interface and the
 pure-Rust `manifold-rust` geometry kernel. There is no browser, JavaScript runtime,
 Three.js, Tauri, hosted service, account, or telemetry in this edition.
 
-This is a local modeling MVP in development, focused on simple objects for 3D
+This is a local modeling MVP, focused on simple objects for 3D
 printing. Circuits, code blocks, cloud services and classroom tools are out of scope.
-Checkpoints 10–11 add visibility/locks, saved preferences and release preparation.
-This is an MVP release candidate; native Mac/Windows acceptance checks remain open.
+Start with [QUICKSTART.md](QUICKSTART.md). Versioned packages are available from
+[GitHub Releases](https://github.com/partiizan/tinkercraft/releases/latest).
+See RELEASE.md for automated checks and remaining hands-on acceptance limits.
 
 ## Run
 
@@ -52,7 +53,8 @@ for the operating system on which it runs:
 | Linux | tar.gz containing both native executables |
 
 `.github/workflows/build.yml` runs tests and native release builds on macOS,
-Windows and Linux, then uploads packages as workflow artifacts.
+Windows and Linux, tests the extracted native windows, then publishes versioned
+packages and checksums to GitHub Releases after every required job passes.
 See [GitHub Actions](https://github.com/partiizan/tinkercraft/actions) and
 CHECKPOINT12.md for native build results and download instructions.
 The packages do not contain signed installers.
@@ -62,8 +64,8 @@ Do not distribute development packages as signed or production-verified releases
 ## Modeling
 
 - Boxes, cylinders, spheres, cones, wedges and roofs, with numeric dimensions and center positions.
-- Source solids/holes and real nested union/subtraction. Show cut result displays
-  the printable result. Source recipes stay editable.
+- Source solids/holes and real nested union/subtraction. Grouping immediately shows
+  the cut result and remains editable. Full export preview is a separate read-only view.
 - Select rows or click shapes. Shift-click toggles selection. Select all or Cmd/Ctrl-A.
 - Drag background to orbit, right-drag to pan, scroll to zoom. Iso/Top/Front/Right
   change direction. Orthographic toggles projection; Fit all resets framing.
@@ -238,7 +240,8 @@ runs on a worker so modeling stays responsive. It exports a snapshot at invocati
 Import the 3MF as a model in your slicer, keeping its parts together, and assign the
 parts to your actual filaments. This is a generic 3MF model, not a Bambu project or
 AMS configuration. Per-face painting, textures, 3MF import and printer-slot mapping
-are not included. Hands-on Bambu Studio color/filament acceptance remains pending.
+are not included. Bambu Studio CLI import is verified; manual filament assignment and an actual
+print remain unverified. See QUICKSTART.md for the RGB compatibility limitation.
 Try `examples/multicolor-plate.tinkercraft` as a two-color/two-hole test.
 
 CLI: `tinkercraft-cli export-3mf INPUT.tinkercraft OUTPUT.3mf`.

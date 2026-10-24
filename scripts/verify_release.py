@@ -38,7 +38,8 @@ def inspect(archive):
     return m,prefix,contents
 
 def main():
-    parser=argparse.ArgumentParser();parser.add_argument('archive',type=Path);parser.add_argument('--run',action='store_true');args=parser.parse_args()
+    parser=argparse.ArgumentParser();parser.add_argument('archive',type=Path);parser.add_argument('--run',action='store_true');parser.add_argument('--window-smoke',action='store_true');args=parser.parse_args()
+    if args.window_smoke and not args.run:parser.error('--window-smoke requires --run')
     m,prefix,contents=inspect(args.archive)
     if args.run:
         if (m['platform'],m['arch'])!=(platform.system(),architecture()):raise ValueError('Run this package on its target OS/architecture')
@@ -54,5 +55,11 @@ def main():
             probe=json.loads(subprocess.check_output([str(cli),'self-test'],cwd=folder,env=env,text=True))
             if probe.get('self_test')!='passed' or probe.get('version')!=m['version']:raise ValueError('Packaged CLI self-test failed')
             if subprocess.check_output([str(app),'--version'],cwd=folder,env=env,text=True).strip()!=f"TinkerCraft {m['version']}":raise ValueError('Packaged desktop version mismatch')
+            if args.window_smoke:
+                report=folder/'native-window.json'
+                subprocess.run([str(app),'--smoke-test',str(report)],cwd=folder,env=env,check=True,timeout=90)
+                evidence=json.loads(report.read_text())
+                if evidence.get('native_window')!='passed' or evidence.get('version')!=m['version']:raise ValueError('Packaged native window failed')
+                print(json.dumps(evidence))
     print(json.dumps({'package':'verified','version':m['version'],'platform':m['platform'],'arch':m['arch'],'files':len(m['files']),'native_cli_run':args.run}))
 if __name__=='__main__':main()

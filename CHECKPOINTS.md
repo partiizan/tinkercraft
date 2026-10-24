@@ -79,3 +79,13 @@ colored parts partition geometry without overlap. New example: multicolor-plate.
 
 See CHECKPOINT14.md, CHECKPOINT15.md and RELEASE.md for validation and limitations.
 Bambu Studio filament mapping and a multicolor print remain manual acceptance tasks.
+
+## Checkpoints 16–17 — 0.16.0
+
+16: Extracted native-window/framebuffer gates on all platforms, verified Bambu
+Studio STL/3MF import dimensions and manifold geometry, and safe close during
+background 3MF export.
+
+17: Versioned release archives/checksums, gated GitHub Release publishing, quick
+start and scoped MVP handoff. See CHECKPOINT16.md and CHECKPOINT17.md for evidence
+and the remaining hands-on OS/filament/print acceptance limits.

@@ -41,6 +41,8 @@ struct Drag {
     sources: Vec<SourceMesh>,
 }
 pub struct Editor {
+    smoke_report: Option<PathBuf>,
+    smoke_frames: u32,
     export_requested: bool,
     export_3mf: bool,
     export_job: Option<mpsc::Receiver<Result<(), String>>>,
@@ -90,7 +92,10 @@ pub struct Editor {
     recovery_status: String,
 }
 impl Editor {
-    pub fn new(cc: &eframe::CreationContext<'_>) -> Self {
+    pub fn new(cc: &eframe::CreationContext<'_>, smoke_report: Option<PathBuf>) -> Self {
+        if smoke_report.is_some() {
+            assert!(cc.gl.is_some(), "Native OpenGL context was not created");
+        }
         cc.egui_ctx
             .options_mut(|o| o.fallback_theme = egui::Theme::Dark);
         let (tx, rx) = mpsc::channel::<(u64, Project)>();
@@ -135,7 +140,10 @@ impl Editor {
                 ctx.request_repaint();
             }
         });
-        let recovery_path = directories::ProjectDirs::from("com", "TinkerCraft", "TinkerCraft")
+        let recovery_path = smoke_report
+            .is_none()
+            .then(|| directories::ProjectDirs::from("com", "TinkerCraft", "TinkerCraft"))
+            .flatten()
             .map(|d| d.data_local_dir().join("recovery.tinkercraft"));
         let mut recovery = None;
         let mut recovery_error = false;
@@ -151,7 +159,10 @@ impl Editor {
                 }
             }
         }
-        let preferences_path = directories::ProjectDirs::from("com", "TinkerCraft", "TinkerCraft")
+        let preferences_path = smoke_report
+            .is_none()
+            .then(|| directories::ProjectDirs::from("com", "TinkerCraft", "TinkerCraft"))
+            .flatten()
             .map(|d| d.config_dir().join("preferences.json"));
         let mut preferences = preferences::Preferences::default();
         let mut preferences_error = false;
@@ -171,6 +182,8 @@ impl Editor {
         }
         let p = Project::demo();
         let mut app = Self {
+            smoke_report,
+            smoke_frames: 0,
             export_requested: false,
             export_3mf: false,
             export_job: None,
@@ -235,7 +248,9 @@ impl Editor {
             app.camera.distance = preferences.distance;
         }
         // Optional launch-file entry point; the same review/validation flow as the picker.
-        if let Some(path) = std::env::args_os().nth(1).map(PathBuf::from) {
+        if app.smoke_report.is_none()
+            && let Some(path) = std::env::args_os().nth(1).map(PathBuf::from)
+        {
             if path
                 .extension()
                 .is_some_and(|e| e.eq_ignore_ascii_case("stl"))
@@ -1251,7 +1266,11 @@ impl eframe::App for Editor {
         if ctx.input(|i| i.viewport().close_requested()) && !self.allow_close {
             ctx.send_viewport_cmd(egui::ViewportCommand::CancelClose);
             self.cancel_drag();
-            self.request(Pending::Close);
+            if self.export_job.is_some() {
+                self.status = "3MF export is still running; close again after it finishes".into();
+            } else {
+                self.request(Pending::Close);
+            }
         }
         if self.allow_close {
             ctx.send_viewport_cmd(egui::ViewportCommand::Close);
@@ -1311,6 +1330,45 @@ impl eframe::App for Editor {
                     self.export_job = None;
                 }
                 Err(mpsc::TryRecvError::Empty) => {}
+            }
+        }
+        // A packaged-window probe captures the framebuffer after real geometry has
+        // rendered. It never reads or writes the user's preferences/recovery files.
+        if let Some(path) = &self.smoke_report {
+            ctx.request_repaint_after(Duration::from_millis(50));
+            if self.ready == self.revision && self.texture.is_some() && self.result.is_some() {
+                self.smoke_frames += 1;
+                if self.smoke_frames == 10 {
+                    ctx.send_viewport_cmd(egui::ViewportCommand::Screenshot(Default::default()));
+                }
+            }
+            let screenshot = ctx.input(|i| {
+                i.events.iter().find_map(|e| match e {
+                    egui::Event::Screenshot { image, .. } => Some(image.clone()),
+                    _ => None,
+                })
+            });
+            if let Some(image) = screenshot {
+                let frame = self
+                    .frame
+                    .as_ref()
+                    .expect("Model viewport was not rendered");
+                let object_pixels = frame.ids.iter().filter(|&&id| id != u32::MAX).count();
+                let colors: std::collections::HashSet<_> =
+                    image.pixels.iter().map(|p| p.to_array()).collect();
+                assert!(
+                    object_pixels > 100 && colors.len() > 32 && image.width() >= 1000,
+                    "Native window did not contain a rendered model"
+                );
+                let report = serde_json::json!({
+                    "version": env!("CARGO_PKG_VERSION"), "native_window": "passed",
+                    "screenshot_size": image.size, "distinct_colors": colors.len(),
+                    "model_pixels": object_pixels, "frames": self.smoke_frames,
+                });
+                std::fs::write(path, serde_json::to_vec_pretty(&report).unwrap())
+                    .expect("Write smoke report");
+                self.allow_close = true;
+                ctx.send_viewport_cmd(egui::ViewportCommand::Close);
             }
         }
         self.sync_preferences();
