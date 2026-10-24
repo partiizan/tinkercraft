@@ -35,7 +35,7 @@ with tempfile.TemporaryDirectory(prefix='tinkercraft-dialogs-') as directory:
     def dialog():return next((i for i,name in windows() if name in ('Save project','Open project','Import STL','Export STL','Export 3MF')),None)
     def pick(path):
         print('Picker:',path.name,flush=True)
-        window=wait_for(dialog);xd('windowfocus',window);key('ctrl+l');xd('type','--clearmodifiers','--delay','1',str(path));key('Return')
+        window=wait_for(dialog);xd('windowfocus',window);key('ctrl+l');key('ctrl+a');xd('type','--clearmodifiers','--delay','1',str(path));key('Return')
         time.sleep(.4)
         if dialog():key('Return')
         wait_for(lambda:not dialog())
