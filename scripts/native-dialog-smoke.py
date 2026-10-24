@@ -32,7 +32,7 @@ with tempfile.TemporaryDirectory(prefix='tinkercraft-dialogs-') as directory:
     def windows():
         ids=xd('search','--onlyvisible','--name','.+').splitlines()
         return [(i,xd('getwindowname',i)) for i in ids]
-    def dialog():return next((i for i,name in windows() if ('Save' in name or 'Open' in name) and 'TinkerCraft' not in name),None)
+    def dialog():return next((i for i,name in windows() if name in ('Save project','Open project','Import STL','Export STL','Export 3MF')),None)
     def pick(path):
         print('Picker:',path.name,flush=True)
         window=wait_for(dialog);xd('windowfocus',window);key('ctrl+l');xd('type','--clearmodifiers','--delay','1',str(path));key('Return')
@@ -80,4 +80,6 @@ with tempfile.TemporaryDirectory(prefix='tinkercraft-dialogs-') as directory:
     finally:
         for p in reversed(processes):
             if p.poll() is None:p.terminate();p.wait(timeout=10)
+        mount=folder/'runtime/doc'
+        if os.path.ismount(mount):subprocess.run(['fusermount3','-u',str(mount)],check=True)
         log.close()

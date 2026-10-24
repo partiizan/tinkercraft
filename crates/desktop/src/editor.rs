@@ -381,6 +381,7 @@ impl Editor {
                 self.history.project.name.replace(['/', '\\'], "_")
             );
             match rfd::FileDialog::new()
+                .set_title("Save project")
                 .add_filter("TinkerCraft project", &["tinkercraft"])
                 .set_file_name(suggested)
                 .save_file()
@@ -454,6 +455,7 @@ impl Editor {
     }
     fn open(&mut self) {
         if let Some(path) = rfd::FileDialog::new()
+            .set_title("Open project")
             .add_filter("TinkerCraft project", &["tinkercraft", "shapeworkshop"])
             .pick_file()
         {
@@ -501,6 +503,7 @@ impl Editor {
     fn choose_import(&mut self) {
         self.commit_draft();
         self.import_path = rfd::FileDialog::new()
+            .set_title("Import STL")
             .add_filter("STL mesh", &["stl"])
             .pick_file();
         self.import_node = None;
@@ -517,6 +520,7 @@ impl Editor {
         }
         if self.export_3mf {
             if let Some(path) = rfd::FileDialog::new()
+                .set_title("Export 3MF")
                 .add_filter("3MF color model", &["3mf"])
                 .set_file_name("tinkercraft.3mf")
                 .save_file()
@@ -541,6 +545,7 @@ impl Editor {
         }
         let Some(m) = &self.result else { return };
         if let Some(p) = rfd::FileDialog::new()
+            .set_title("Export STL")
             .add_filter("STL mesh", &["stl"])
             .set_file_name("tinkercraft.stl")
             .save_file()
