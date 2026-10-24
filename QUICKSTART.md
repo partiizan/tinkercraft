@@ -3,7 +3,7 @@
 ## Install
 
 Download the archive for your system from
-https://github.com/partiizan/tinkercraft/releases/latest and extract it fully.
+https://github.com/partiizan/tinkercraft/releases and extract it fully.
 
 - **Apple Silicon Mac:** move `TinkerCraft.app` into Applications. The bundle is
   ad-hoc signed, not Apple notarized. If macOS blocks the downloaded app, use the
@@ -61,3 +61,7 @@ control recolors a solid; recoloring a group recolors all of its components.
 Projects include a recovery snapshot. After an interrupted session, choose Restore
 at startup. Recovery is not a substitute for saving your project. Old app versions
 cannot open newly saved schema-8 files; preserve originals when upgrading.
+
+New builds are release candidates marked **Pre-release** on GitHub. Select the
+newest candidate from the Releases list; GitHub's `/latest` URL points to the last
+stable release instead. Remaining acceptance: https://github.com/partiizan/tinkercraft/issues/3.

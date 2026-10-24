@@ -1,5 +1,20 @@
 # Roadmap after the Rust migration
 
+## Current release-candidate policy
+
+New main-branch builds publish as GitHub **Pre-releases**, versioned `0.17.0-rc.N`,
+after all three native jobs pass. Manual workflow runs on main do the same;
+pull requests and failed builds do not publish. A rerun keeps the same candidate
+number so partial retries cannot mix different platform versions. Already published
+assets are never replaced. The existing v0.16.0 release remains historical.
+
+[Issue #3](https://github.com/partiizan/tinkercraft/issues/3) tracks checkpoints
+18 (desktop acceptance), 19 (Bambu/printing acceptance, including #2), and 20
+(explicit stable-release approval). The items below describe prior implementation
+milestones; they do not imply that those manual acceptance gates have passed.
+There is no automatic stable-release promotion in the workflow.
+
+
 These are scope estimates, not token or weekly-usage estimates. A checkpoint is a
 bounded implementation/test/delivery milestone; effort varies substantially.
 

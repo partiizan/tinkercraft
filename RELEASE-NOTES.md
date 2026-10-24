@@ -1,3 +1,15 @@
+This is a **release candidate**, not a stable release. Each successful main-branch
+build receives a unique `0.17.0-rc.N` version; the tag and downloads identify the
+exact candidate. The number is the workflow run number, not a completed-checkpoint
+count. Rerunning a workflow retains its candidate identity across all platforms.
+
+Track remaining acceptance and report candidate-specific results in
+https://github.com/partiizan/tinkercraft/issues/3.
+
+Remaining gates: native desktop dialogs/shortcuts on user hardware, interactive
+Bambu filament assignment and a physical print, followed by an explicit stable
+release decision. Closing issues never automatically promotes a build to stable.
+
 TinkerCraft 0.16.0 completes the implementation and automated validation checkpoints
 for the local modeling MVP. Rust-native packages target Apple Silicon macOS,
 Windows x64 and Linux x64. Circuits, code blocks and cloud features are out of scope.

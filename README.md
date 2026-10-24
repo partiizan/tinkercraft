@@ -8,7 +8,7 @@ Three.js, Tauri, hosted service, account, or telemetry in this edition.
 This is a local modeling MVP, focused on simple objects for 3D
 printing. Circuits, code blocks, cloud services and classroom tools are out of scope.
 Start with [QUICKSTART.md](QUICKSTART.md). Versioned packages are available from
-[GitHub Releases](https://github.com/partiizan/tinkercraft/releases/latest).
+[GitHub Releases](https://github.com/partiizan/tinkercraft/releases).
 See RELEASE.md for automated checks and remaining hands-on acceptance limits.
 
 ## Run
@@ -245,3 +245,7 @@ print remain unverified. See QUICKSTART.md for the RGB compatibility limitation.
 Try `examples/multicolor-plate.tinkercraft` as a two-color/two-hole test.
 
 CLI: `tinkercraft-cli export-3mf INPUT.tinkercraft OUTPUT.3mf`.
+
+New builds are release candidates marked **Pre-release** on GitHub. Select the
+newest candidate from the Releases list; GitHub's `/latest` URL points to the last
+stable release instead. Remaining acceptance: https://github.com/partiizan/tinkercraft/issues/3.

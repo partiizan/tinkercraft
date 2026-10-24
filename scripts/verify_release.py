@@ -33,7 +33,7 @@ def inspect(archive):
         if binary_target(contents[prefix+m[key]])!=(m['platform'],m['arch']):raise ValueError('Executable target mismatch')
     if m['platform']=='Darwin':
         plist=plistlib.loads(contents[prefix+'TinkerCraft.app/Contents/Info.plist'])
-        if plist['CFBundleShortVersionString']!=m['version'] or plist['CFBundleExecutable']!='tinkercraft':raise ValueError('Mac bundle metadata mismatch')
+        if plist['CFBundleShortVersionString']!=m['version'].split('-')[0] or plist.get('TinkerCraftBuildVersion',plist['CFBundleShortVersionString'])!=m['version'] or plist['CFBundleExecutable']!='tinkercraft':raise ValueError('Mac bundle metadata mismatch')
         if plist.get('CFBundleIconFile')!='TinkerCraft.icns' or prefix+'TinkerCraft.app/Contents/Resources/TinkerCraft.icns' not in contents:raise ValueError('Mac icon missing')
     return m,prefix,contents
 

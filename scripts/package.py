@@ -28,8 +28,8 @@ def stage_release(root,stage,system,arch,version,evidence,sign_macos=False):
         with (contents/'Info.plist').open('wb') as f:
             plistlib.dump({'CFBundleName':'TinkerCraft','CFBundleDisplayName':'TinkerCraft',
                           'CFBundleIdentifier':'com.tinkercraft.native','CFBundleExecutable':'tinkercraft',
-                          'CFBundleIconFile':'TinkerCraft.icns','CFBundlePackageType':'APPL','CFBundleShortVersionString':version,
-                          'CFBundleVersion':version,'NSHighResolutionCapable':True,
+                          'CFBundleIconFile':'TinkerCraft.icns','CFBundlePackageType':'APPL','CFBundleShortVersionString':version.split('-')[0],
+                          'CFBundleVersion':version.split('-')[0],'TinkerCraftBuildVersion':version,'NSHighResolutionCapable':True,
                           'NSHumanReadableCopyright':'TinkerCraft contributors'},f)
     else:
         app=stage/sources[0].name;shutil.copy2(sources[0],app)

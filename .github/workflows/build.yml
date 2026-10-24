@@ -21,6 +21,8 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
+      - name: Stamp release candidate version
+        run: python scripts/prepare_rc.py
       - uses: Swatinem/rust-cache@v2
       - name: Linux desktop dependencies
         if: runner.os == 'Linux'
@@ -74,7 +76,7 @@ jobs:
 
   release:
     needs: native
-    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    if: (github.event_name == 'push' || github.event_name == 'workflow_dispatch') && github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -88,7 +90,12 @@ jobs:
           pattern: TinkerCraft-*
           path: release-assets
           merge-multiple: true
-      - name: Publish verified version once
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Stamp matching candidate version
+        run: python scripts/prepare_rc.py
+      - name: Publish verified release candidate once
         env:
           GH_TOKEN: ${{ github.token }}
         shell: bash
@@ -98,4 +105,4 @@ jobs:
             echo "Version already published; keeping its immutable assets."
             exit 0
           fi
-          gh release create "v$version" release-assets/* --target "$GITHUB_SHA" --title "TinkerCraft $version — local modeling MVP" --notes-file RELEASE-NOTES.md
+          gh release create "v$version" release-assets/* --target "$GITHUB_SHA" --title "TinkerCraft $version — Release candidate" --prerelease --latest=false --notes-file RELEASE-NOTES.md
