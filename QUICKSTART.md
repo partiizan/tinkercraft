@@ -65,3 +65,6 @@ cannot open newly saved schema-8 files; preserve originals when upgrading.
 New builds are release candidates marked **Pre-release** on GitHub. Select the
 newest candidate from the Releases list; GitHub's `/latest` URL points to the last
 stable release instead. Remaining acceptance: https://github.com/partiizan/tinkercraft/issues/3.
+
+File shortcuts: Cmd/Ctrl-I imports STL; Cmd/Ctrl-Shift-E exports STL;
+Cmd/Ctrl-Alt-E exports 3MF. Use ACCEPTANCE.md to report an RC test.

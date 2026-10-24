@@ -498,6 +498,14 @@ impl Editor {
             };
         }
     }
+    fn choose_import(&mut self) {
+        self.commit_draft();
+        self.import_path = rfd::FileDialog::new()
+            .add_filter("STL mesh", &["stl"])
+            .pick_file();
+        self.import_node = None;
+        self.import_error.clear();
+    }
     fn export(&mut self) {
         self.commit_draft();
         self.export_requested = true;
@@ -566,12 +574,7 @@ impl Editor {
                     self.open()
                 }
                 if ui.button("Import STL").clicked() {
-                    self.commit_draft();
-                    self.import_path = rfd::FileDialog::new()
-                        .add_filter("STL mesh", &["stl"])
-                        .pick_file();
-                    self.import_node = None;
-                    self.import_error.clear();
+                    self.choose_import();
                 }
                 if ui.button("Save").clicked() {
                     self.save(false);
@@ -824,6 +827,22 @@ if ui.button("Delete").clicked(){self.operation(|p,s|{p.parts.retain(|n|!s.conta
         }
         if ctx.input_mut(|i| i.consume_key(cmd, egui::Key::O)) {
             self.open();
+        }
+        if ctx.input_mut(|i| i.consume_key(cmd, egui::Key::I)) {
+            self.choose_import();
+        }
+        if self.result.is_some() && self.export_job.is_none() {
+            if ctx
+                .input_mut(|i| i.consume_key(egui::Modifiers { shift: true, ..cmd }, egui::Key::E))
+            {
+                self.export_3mf = false;
+                self.export();
+            } else if ctx
+                .input_mut(|i| i.consume_key(egui::Modifiers { alt: true, ..cmd }, egui::Key::E))
+            {
+                self.export_3mf = true;
+                self.export();
+            }
         }
         if ctx.wants_keyboard_input() {
             return;

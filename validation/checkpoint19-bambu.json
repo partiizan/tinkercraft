@@ -1,0 +1,99 @@
+{
+  "tinkercraft": "TinkerCraft CLI 0.17.0",
+  "fixture_sha256": "3af37f5d0ac85ba11c8a7cb53c338f081bccfce9d8a80c9dc2fa1756f6c6d2ca",
+  "bambu_binary_sha256": "d267ad0b4589c46cb18f49e2414f87a529b446dc992cb6ab8a728fe43f549eb8",
+  "imports": {
+    "stl": {
+      "size_x": "80.000000",
+      "size_y": "30.000000",
+      "size_z": "5.000000",
+      "min_x": "0.000000",
+      "min_y": "0.000000",
+      "min_z": "0.000000",
+      "max_x": "80.000000",
+      "max_y": "30.000000",
+      "max_z": "5.000000",
+      "number_of_facets": "796",
+      "manifold": "yes",
+      "number_of_parts": "1",
+      "volume": "11803.786133"
+    },
+    "3mf": {
+      "size_x": "80.000000",
+      "size_y": "30.000000",
+      "size_z": "5.000000",
+      "min_x": "0.000000",
+      "min_y": "0.000000",
+      "min_z": "0.000000",
+      "max_x": "80.000000",
+      "max_y": "30.000000",
+      "max_z": "5.000000",
+      "number_of_facets": "800",
+      "manifold": "yes",
+      "number_of_parts": "2",
+      "volume": "11803.783203"
+    }
+  },
+  "slices": {
+    "stl": {
+      "layers": 25,
+      "height_mm": 5,
+      "filaments": [
+        {
+          "filament_id": "GFL99",
+          "id": 1,
+          "main_used_g": 7.415159702301025,
+          "total_used_g": 7.415159702301025
+        }
+      ],
+      "filament_changes": 0,
+      "estimated_seconds": 1154.6558837890625,
+      "warnings": ""
+    },
+    "3mf_single_filament": {
+      "layers": 25,
+      "height_mm": 5,
+      "filaments": [
+        {
+          "filament_id": "GFL99",
+          "id": 1,
+          "main_used_g": 7.415184497833252,
+          "total_used_g": 7.415184497833252
+        }
+      ],
+      "filament_changes": 0,
+      "estimated_seconds": 1153.400390625,
+      "warnings": ""
+    },
+    "3mf_two_filaments": {
+      "layers": 25,
+      "height_mm": 5,
+      "filaments": [
+        {
+          "filament_id": "GFL99",
+          "id": 1,
+          "main_used_g": 3.9605841636657715,
+          "total_used_g": 9.918878555297852
+        },
+        {
+          "filament_id": "GFL99",
+          "id": 2,
+          "main_used_g": 3.6325743198394775,
+          "total_used_g": 11.457616806030273
+        }
+      ],
+      "filament_changes": 25,
+      "estimated_seconds": 4450.0517578125,
+      "warnings": ""
+    }
+  },
+  "interactive_filament_assignment_tested": false,
+  "physical_print_tested": false,
+  "bambu_version": "BambuStudio-02.08.02.61",
+  "slicing_profiles": {
+    "machine": "Bambu Lab X1 Carbon 0.4 nozzle",
+    "process": "0.20mm Standard @BBL X1C",
+    "filament": "Generic PLA @base",
+    "resolved_inheritance": true
+  }
+}

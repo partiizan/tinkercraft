@@ -104,3 +104,10 @@ background 3MF export.
 17: Versioned release archives/checksums, gated GitHub Release publishing, quick
 start and scoped MVP handoff. See CHECKPOINT16.md and CHECKPOINT17.md for evidence
 and the remaining hands-on OS/filament/print acceptance limits.
+
+## Checkpoints 18–19: automation advanced; manual acceptance open
+
+18 adds native GTK portal Save/Open/Save As/import/export checks and file-workflow
+shortcuts. 19 adds reproducible Bambu slicing with resolved X1C/PLA presets and
+programmatic two-filament assignment. See CHECKPOINT18.md, CHECKPOINT19.md and
+ACCEPTANCE.md. Physical Mac/Windows and print evidence remain required in #3.

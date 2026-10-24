@@ -26,7 +26,7 @@ jobs:
       - uses: Swatinem/rust-cache@v2
       - name: Linux desktop dependencies
         if: runner.os == 'Linux'
-        run: sudo apt-get update && sudo apt-get install -y libx11-dev libxi-dev libxrandr-dev libxcursor-dev libxinerama-dev libgl1-mesa-dev libxkbcommon-dev libxkbcommon-x11-0 libwayland-dev xvfb xdotool
+        run: sudo apt-get update && sudo apt-get install -y libx11-dev libxi-dev libxrandr-dev libxcursor-dev libxinerama-dev libgl1-mesa-dev libxkbcommon-dev libxkbcommon-x11-0 libwayland-dev xvfb xdotool dbus-x11 xdg-desktop-portal xdg-desktop-portal-gtk
       - run: cargo fmt --all -- --check
       - run: cargo test --workspace --locked
       - run: cargo clippy --workspace --all-targets --locked -- -D warnings
@@ -69,6 +69,9 @@ jobs:
       - name: Linux native window regression
         if: runner.os == 'Linux'
         run: python scripts/native-smoke.py
+      - name: Linux native file-dialog acceptance
+        if: runner.os == 'Linux'
+        run: dbus-run-session -- xvfb-run -a -s "-screen 0 1440x960x24" python scripts/native-dialog-smoke.py
       - uses: actions/upload-artifact@v4
         with:
           name: TinkerCraft-${{ runner.os }}-${{ runner.arch }}

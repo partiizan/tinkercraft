@@ -1,3 +1,9 @@
+This candidate adds real Linux GTK file-dialog regression and keyboard shortcuts
+for STL import (Cmd/Ctrl-I), STL export (Cmd/Ctrl-Shift-E) and 3MF export
+(Cmd/Ctrl-Alt-E). Bambu CLI validation now includes actual single- and two-filament
+slicing. See CHECKPOINT18.md, CHECKPOINT19.md and ACCEPTANCE.md for evidence and
+remaining hands-on checks; neither checkpoint is fully signed off yet.
+
 This is a **release candidate**, not a stable release. Each successful main-branch
 build receives a unique `0.17.0-rc.N` version; the tag and downloads identify the
 exact candidate. The number is the workflow run number, not a completed-checkpoint
