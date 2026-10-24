@@ -117,6 +117,17 @@ pub fn render(
     selected: &HashSet<String>,
     result: Option<&Mesh>,
 ) -> Frame {
+    render_themed(camera, width, height, sources, selected, result, false)
+}
+pub fn render_themed(
+    camera: &Camera,
+    width: usize,
+    height: usize,
+    sources: &[SourceMesh],
+    selected: &HashSet<String>,
+    result: Option<&Mesh>,
+    dark: bool,
+) -> Frame {
     let mut frame = Frame {
         width,
         height,
@@ -128,7 +139,7 @@ pub fn render(
     for y in 0..height {
         for x in 0..width {
             let i = (y * width + x) * 4;
-            let c = (235. - 12. * y as f64 / height as f64) as u8;
+            let c = ((if dark { 39. } else { 235. }) - 12. * y as f64 / height as f64) as u8;
             frame.rgba[i..i + 4].copy_from_slice(&[
                 c,
                 c.saturating_add(5),
@@ -154,7 +165,11 @@ pub fn render(
             let line = near(p.x).min(near(p.y));
             if line < camera.units_per_pixel(height as f64) * 0.45 {
                 let i = y * width + x;
-                frame.rgba[i * 4..i * 4 + 3].copy_from_slice(&[186, 200, 207]);
+                frame.rgba[i * 4..i * 4 + 3].copy_from_slice(if dark {
+                    &[65, 78, 87]
+                } else {
+                    &[186, 200, 207]
+                });
                 if let Some(q) = camera.project(p, width, height) {
                     depth[i] = q[2];
                 }

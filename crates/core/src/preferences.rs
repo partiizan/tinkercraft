@@ -3,10 +3,19 @@ use crate::{document::Vec3, storage, viewport::Camera};
 use anyhow::{Result, ensure};
 use serde::{Deserialize, Serialize};
 use std::{io::Read, path::Path};
+#[derive(Clone, Copy, Debug, Default, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "lowercase")]
+pub enum Appearance {
+    Light,
+    Dark,
+    #[default]
+    System,
+}
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 #[serde(default)]
 pub struct Preferences {
     pub version: u32,
+    pub appearance: Appearance,
     pub move_snap: f64,
     pub angle_snap: f64,
     pub tool: u8,
@@ -22,6 +31,7 @@ impl Default for Preferences {
         let c = Camera::default();
         Self {
             version: 1,
+            appearance: Appearance::System,
             move_snap: 1.,
             angle_snap: 15.,
             tool: 0,

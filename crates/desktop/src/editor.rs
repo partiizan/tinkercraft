@@ -66,6 +66,8 @@ pub struct Editor {
     preferences_status: String,
     preferences_open: bool,
     remember_camera: bool,
+    appearance: preferences::Appearance,
+    viewport_dark: bool,
     preview: bool,
     tool: Tool,
     move_snap: f64,
@@ -84,7 +86,8 @@ pub struct Editor {
 }
 impl Editor {
     pub fn new(cc: &eframe::CreationContext<'_>) -> Self {
-        cc.egui_ctx.set_visuals(egui::Visuals::dark());
+        cc.egui_ctx
+            .options_mut(|o| o.fallback_theme = egui::Theme::Dark);
         let (tx, rx) = mpsc::channel::<(u64, Project)>();
         let (out_tx, out_rx) = mpsc::channel();
         let ctx = cc.egui_ctx.clone();
@@ -177,6 +180,8 @@ impl Editor {
             preferences_status,
             preferences_open: false,
             remember_camera: preferences.remember_camera,
+            appearance: preferences.appearance,
+            viewport_dark: true,
             preview: false,
             tool: Tool::Move,
             move_snap: 1.,
@@ -481,7 +486,11 @@ impl Editor {
             ui.add_space(6.);
             ui.horizontal(|ui| {
                 ui.heading(
-                    egui::RichText::new("TinkerCraft").color(Color32::from_rgb(117, 222, 188)),
+                    egui::RichText::new("TinkerCraft").color(if ui.visuals().dark_mode {
+                        Color32::from_rgb(117, 222, 188)
+                    } else {
+                        Color32::from_rgb(20, 105, 85)
+                    }),
                 );
                 ui.label(format!("Native Rust · {}", env!("CARGO_PKG_VERSION")));
                 ui.separator();
@@ -609,6 +618,7 @@ impl Editor {
         };
         preferences::Preferences {
             version: 1,
+            appearance: self.appearance,
             move_snap: self.move_snap,
             angle_snap: self.angle_snap,
             tool: match self.tool {
@@ -656,6 +666,16 @@ impl Editor {
         }
         egui::Modal::new(egui::Id::new("preferences")).show(ctx, |ui| {
             ui.heading("Preferences");
+            ui.horizontal(|ui| {
+                ui.label("Appearance");
+                for (mode, label) in [
+                    (preferences::Appearance::Light, "Light"),
+                    (preferences::Appearance::Dark, "Dark"),
+                    (preferences::Appearance::System, "System"),
+                ] {
+                    ui.selectable_value(&mut self.appearance, mode, label);
+                }
+            });
             ui.label("Tool, snapping and projection are saved automatically.");
             ui.checkbox(
                 &mut self.remember_camera,
@@ -671,6 +691,7 @@ impl Editor {
                 self.tool = Tool::Move;
                 self.camera = Camera::default();
                 self.remember_camera = true;
+                self.appearance = preferences::Appearance::System;
                 self.preferences_error = false;
                 self.redraw = true;
                 self.save_preferences();
@@ -1040,7 +1061,7 @@ if ui.button("Delete").clicked(){self.operation(|p,s|{p.parts.retain(|n|!s.conta
                 }
             }
             if self.redraw {
-                let frame = viewport::render(
+                let frame = viewport::render_themed(
                     &self.camera,
                     width,
                     height,
@@ -1051,6 +1072,7 @@ if ui.button("Delete").clicked(){self.operation(|p,s|{p.parts.retain(|n|!s.conta
                     } else {
                         None
                     },
+                    self.viewport_dark,
                 );
                 let image = egui::ColorImage::from_rgba_unmultiplied([width, height], &frame.rgba);
                 if let Some(texture) = &mut self.texture {
@@ -1104,7 +1126,7 @@ if ui.button("Delete").clicked(){self.operation(|p,s|{p.parts.retain(|n|!s.conta
                     "XY workplane · 10 mm grid · Z up"
                 },
                 egui::FontId::proportional(12.),
-                Color32::from_gray(75),
+                if self.viewport_dark { Color32::from_gray(205) } else { Color32::from_gray(75) },
             );
         });
     }
@@ -1137,6 +1159,16 @@ fn segment_distance(p: Pos2, a: Pos2, b: Pos2) -> f32 {
 }
 impl eframe::App for Editor {
     fn update(&mut self, ctx: &egui::Context, _frame: &mut eframe::Frame) {
+        ctx.set_theme(match self.appearance {
+            preferences::Appearance::Light => egui::ThemePreference::Light,
+            preferences::Appearance::Dark => egui::ThemePreference::Dark,
+            preferences::Appearance::System => egui::ThemePreference::System,
+        });
+        let dark = ctx.style().visuals.dark_mode;
+        if self.viewport_dark != dark {
+            self.viewport_dark = dark;
+            self.redraw = true;
+        }
         while let Ok(c) = self.receiver.try_recv() {
             if c.revision != self.revision {
                 continue;
