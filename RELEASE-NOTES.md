@@ -23,3 +23,10 @@ Hands-on Mac/Windows file-dialog/shortcut acceptance and physical printing remai
 unverified. Generic RGB materials are not an automatic Bambu filament/AMS mapping:
 Bambu's CLI preserves the parts but drops their RGB materials on re-export. Assign
 filaments in the slicer. This release does not claim full Tinkercad modeling parity.
+
+Windows hosted-runner graphics use the checksum-pinned Mesa 26.2.4 software
+OpenGL driver for the extracted-window test, because the Hyper-V display adapter
+only exposes legacy OpenGL. These test-only DLLs are not shipped in the archive.
+The check verifies the native Windows application/window/rendering path, not
+compatibility with every physical GPU. Startup failures now display a useful
+error dialog instead of silently exiting.

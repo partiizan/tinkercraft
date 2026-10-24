@@ -1,6 +1,6 @@
 """Verify package contents; --run additionally executes its native CLI and version probe."""
 from pathlib import Path, PurePosixPath
-import argparse, hashlib, json, os, platform, plistlib, subprocess, tarfile, tempfile, zipfile
+import argparse, hashlib, json, os, platform, plistlib, shutil, subprocess, tarfile, tempfile, zipfile
 from package import binary_target, architecture
 
 def inspect(archive):
@@ -56,12 +56,21 @@ def main():
             if probe.get('self_test')!='passed' or probe.get('version')!=m['version']:raise ValueError('Packaged CLI self-test failed')
             if subprocess.check_output([str(app),'--version'],cwd=folder,env=env,text=True).strip()!=f"TinkerCraft {m['version']}":raise ValueError('Packaged desktop version mismatch')
             if args.window_smoke:
+                # CI's Hyper-V adapter only exposes OpenGL 1.1. Test-only Mesa
+                # libraries are supplied explicitly after archive verification;
+                # they are never added to the distributed archive.
+                driver=env.get('TC_TEST_OPENGL_DIR')
+                if driver:
+                    if m['platform']!='Windows':raise ValueError('Test OpenGL override is Windows-only')
+                    for name in ('opengl32.dll','libgallium_wgl.dll'):
+                        shutil.copy2(Path(driver)/name,app.parent/name)
                 report=folder/'native-window.json'
                 result=subprocess.run([str(app),'--smoke-test',str(report)],cwd=folder,env=env,timeout=90)
                 if result.returncode:
                     raise RuntimeError(report.read_text() if report.exists() else f'Native app exited {result.returncode} without a report')
                 evidence=json.loads(report.read_text())
                 if evidence.get('native_window')!='passed' or evidence.get('version')!=m['version']:raise ValueError('Packaged native window failed')
+                evidence['test_driver']='Mesa llvmpipe' if driver else 'platform default'
                 print(json.dumps(evidence))
     print(json.dumps({'package':'verified','version':m['version'],'platform':m['platform'],'arch':m['arch'],'files':len(m['files']),'native_cli_run':args.run}))
 if __name__=='__main__':main()

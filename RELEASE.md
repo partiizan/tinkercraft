@@ -90,3 +90,10 @@ Independent validation uses ZIP/XML inspection and the 3MF Consortium lib3mf 2.5
 strict reader, including oriented/manifold mesh checks. The native Linux regression
 covers theme selection/persistence and color undo/redo/recovery. Bambu Studio
 interactive import and final filament mapping still require hands-on acceptance.
+
+Windows hosted-runner graphics use the checksum-pinned Mesa 26.2.4 software
+OpenGL driver for the extracted-window test, because the Hyper-V display adapter
+only exposes legacy OpenGL. These test-only DLLs are not shipped in the archive.
+The check verifies the native Windows application/window/rendering path, not
+compatibility with every physical GPU. Startup failures now display a useful
+error dialog instead of silently exiting.

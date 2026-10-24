@@ -29,3 +29,10 @@ Bambu's CLI 3MF re-export retained the two parts but did not retain generic RGB
 materials as filament assignments. Manual filament selection remains required.
 The exporter remains a standards-based model package, not a printer-specific job.
 No G-code, physical print or interactive filament-mapping result is claimed.
+
+Windows hosted-runner graphics use the checksum-pinned Mesa 26.2.4 software
+OpenGL driver for the extracted-window test, because the Hyper-V display adapter
+only exposes legacy OpenGL. These test-only DLLs are not shipped in the archive.
+The check verifies the native Windows application/window/rendering path, not
+compatibility with every physical GPU. Startup failures now display a useful
+error dialog instead of silently exiting.
