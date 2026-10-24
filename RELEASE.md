@@ -1,4 +1,4 @@
-# TinkerCraft 0.13.0 — local modeling MVP release candidate
+# TinkerCraft 0.15.0 — local modeling MVP release candidate
 
 This checkpoint completes release preparation, not certification on every OS.
 The application targets native macOS (Apple Silicon), Windows x64 and Linux x64.
@@ -12,19 +12,19 @@ Circuits, code blocks and cloud/classroom functionality are excluded.
 | macOS Apple Silicon | Native CI release build passed | Engine tests and packaged CLI passed; interactive GUI pending | Real ARM64 app bundle verified |
 | Windows x64 | Native MSVC CI release build passed | Engine tests and packaged CLI passed; interactive GUI pending | Real x64 ZIP verified |
 
-Checkpoint 13 evidence: [successful native run](https://github.com/partiizan/tinkercraft/actions/runs/38960079249),
-source commit `f6ed178bceff8007d2fec896a186369e1b61fce4` (2026-10-16).
-All three jobs passed formatting, 37 engine tests, Clippy, four packaging tests,
+Checkpoints 14–15 evidence: [successful native run](https://github.com/partiizan/tinkercraft/actions/runs/40141986776),
+source commit `a0a886789aed6e0911f08ccfd55d6d3040f440ba` (2026-10-24).
+All three jobs passed formatting, 46 engine tests, Clippy, four packaging tests,
 release compilation, packaging and extracted executable probes. Linux also passed
 its automated native window regression. These checks do not attest Mac or Windows
 GUI behavior or real file-dialog/slicer integration.
 
-Download native packages from that run's Artifacts section; see CHECKPOINT13.md.
+Download native packages from that run's Artifacts section; see CHECKPOINT15.md.
 Before calling this a cross-platform MVP release, finish the desktop acceptance
 checklist below. Mac bundles are ad-hoc signed and verified before and after packaging, but not
 Developer ID signed or notarized. Windows executables are unsigned.
 The documentation bundled in the initial CI archives predates these results;
-this repository's RELEASE.md and CHECKPOINT13.md contain the updated evidence.
+this repository's RELEASE.md and CHECKPOINT15.md contain the updated evidence.
 
 ## Build and verify on your native platform
 
@@ -83,3 +83,20 @@ Export commits the active draft and waits for the corresponding geometry result
 before showing the save dialog, preventing export of a previous dimension value.
 Pending export is cancelled on document replacement. Hide/lock state lives in
 schema-7 projects. Preference changes do not mark project geometry as modified.
+
+## Checkpoints 14–15
+
+Appearance preferences (Light/Dark/System) include the viewport/grid. System
+falls back to Dark if the OS theme is unavailable. Object colors are stored in
+schema-8 projects; older schemas migrate with default colors. Old app versions
+cannot open newly saved schema-8 projects.
+
+3MF export preserves millimeter geometry as disjoint colored parts in one assembly.
+Colors survive groups, cuts, transforms, save/reopen and undo. Recoloring a group
+recolors its components; ungroup for separate colors. Later solids own overlapping
+volume. Hidden objects remain included in export. STL remains geometry-only.
+
+Independent validation uses ZIP/XML inspection and the 3MF Consortium lib3mf 2.5.0
+strict reader, including oriented/manifold mesh checks. The native Linux regression
+covers theme selection/persistence and color undo/redo/recovery. Bambu Studio
+interactive import and final filament mapping still require hands-on acceptance.

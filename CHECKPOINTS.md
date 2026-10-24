@@ -67,3 +67,15 @@ Group/button or keyboard, matte toolbox app icon, and assembled Mac bundle signi
 All three native jobs passed, including staged/extracted Mac codesign validation
 and Linux GUI regression. See CHECKPOINT13.md for downloads and remaining manual
 acceptance. Ad-hoc signing does not replace Developer ID signing/notarization.
+
+## Checkpoints 14–15 — 0.15.0
+
+14: Light/Dark/System preferences, persistent across restarts, with themed viewport
+and grid. System follows OS events where supported, falling back to Dark.
+
+15: Saved object colors, grouped multicolor cut geometry, and 3MF export through
+UI and CLI. Schema 8 reads legacy files. 3MF assembly/material resources use mm;
+colored parts partition geometry without overlap. New example: multicolor-plate.
+
+See CHECKPOINT14.md, CHECKPOINT15.md and RELEASE.md for validation and limitations.
+Bambu Studio filament mapping and a multicolor print remain manual acceptance tasks.
