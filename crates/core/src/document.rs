@@ -40,6 +40,8 @@ pub struct Node {
     pub id: String,
     pub name: String,
     pub hole: bool,
+    #[serde(default = "default_color")]
+    pub color: [u8; 3],
     #[serde(default)]
     pub hidden: bool,
     #[serde(default)]
@@ -50,7 +52,18 @@ pub struct Node {
     #[serde(flatten)]
     pub shape: Shape,
 }
+pub fn default_color() -> [u8; 3] {
+    [141, 190, 206]
+}
 impl Node {
+    pub fn set_color_recursive(&mut self, color: [u8; 3]) {
+        self.color = color;
+        if let Shape::Group { children, .. } = &mut self.shape {
+            for child in children {
+                child.set_color_recursive(color);
+            }
+        }
+    }
     pub fn has_locked(&self) -> bool {
         self.locked
             || matches!(&self.shape, Shape::Group { children, .. } if children.iter().any(Node::has_locked))
@@ -70,6 +83,7 @@ impl Node {
             id: uuid::Uuid::new_v4().to_string(),
             name: kind.to_owned(),
             hole: false,
+            color: default_color(),
             hidden: false,
             locked: false,
             position: [40., 15., 10.],
@@ -167,7 +181,7 @@ impl Default for Project {
     fn default() -> Self {
         Self {
             format: "shapeworkshop".into(),
-            version: 7,
+            version: 8,
             units: "mm".into(),
             name: "Untitled".into(),
             parts: vec![],
@@ -180,7 +194,7 @@ fn text(s: &str, max: usize) -> bool {
 impl Project {
     pub fn validate(&self) -> Result<()> {
         ensure!(
-            self.format == "shapeworkshop" && self.version == 7 && self.units == "mm",
+            self.format == "shapeworkshop" && self.version == 8 && self.units == "mm",
             "Unsupported project format/version/units"
         );
         ensure!(text(&self.name, 100), "Invalid project name");
@@ -289,7 +303,7 @@ impl Project {
         ensure!(bytes.len() <= MAX_BYTES, "Project exceeds 32 MB");
         let mut v: serde_json::Value = serde_json::from_slice(bytes)?;
         let version = v["version"].as_u64().unwrap_or(0);
-        ensure!((1..=7).contains(&version), "Unsupported project version");
+        ensure!((1..=8).contains(&version), "Unsupported project version");
         fn migrate(v: &mut serde_json::Value, version: u64, depth: usize) -> Result<()> {
             ensure!(depth <= 8, "Group nesting limit exceeded");
             let kind = v["kind"].as_str().unwrap_or("");
@@ -328,7 +342,7 @@ impl Project {
                 migrate(n, version, 0)?;
             }
         }
-        v["version"] = 7.into();
+        v["version"] = 8.into();
         let p: Self = serde_json::from_value(v)?;
         p.validate()?;
         crate::stl::validate_project_meshes(&p)?;

@@ -37,7 +37,7 @@ fn main() -> Result<()> {
     }
     let Some(command) = args.get(1) else {
         println!(
-            "TinkerCraft CLI\n  --version\n  self-test\n  import INPUT.stl OUTPUT.tinkercraft [mm|in|cm]\n  demo OUTPUT.tinkercraft\n  validate INPUT.tinkercraft\n  export INPUT.tinkercraft OUTPUT.stl\n  render INPUT.tinkercraft OUTPUT.ppm"
+            "TinkerCraft CLI\n  --version\n  self-test\n  import INPUT.stl OUTPUT.tinkercraft [mm|in|cm]\n  demo OUTPUT.tinkercraft\n  validate INPUT.tinkercraft\n  export INPUT.tinkercraft OUTPUT.stl\n  export-3mf INPUT.tinkercraft OUTPUT.3mf\n  render INPUT.tinkercraft OUTPUT.ppm"
         );
         return Ok(());
     };
@@ -75,6 +75,13 @@ fn main() -> Result<()> {
                 "{}",
                 serde_json::json!({"name":p.name,"schema":p.version,"objects":p.parts.len(),"triangles":m.triangles.len(),"volume_mm3":m.volume()})
             );
+        }
+        "export-3mf" => {
+            let out = args.get(3).context("Missing output path")?;
+            storage::atomic_write(
+                &PathBuf::from(out),
+                &tinkercraft_core::three_mf::export(&p)?,
+            )?;
         }
         "export" => {
             let out = args.get(3).context("Missing output path")?;

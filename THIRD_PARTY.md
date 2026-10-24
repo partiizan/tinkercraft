@@ -16,6 +16,7 @@ Primary dependencies (exact resolutions in Cargo.lock):
 - uuid — Apache-2.0 OR MIT; unique document IDs.
 - tempfile — MIT OR Apache-2.0; atomic writes.
 - directories — MIT OR Apache-2.0; OS-specific app-data paths.
+- zip 2.4.2 — MIT; 3MF ZIP packaging (stored entries, no compression codecs).
 - anyhow — MIT OR Apache-2.0; error propagation.
 
 Transitive dependencies retain their upstream licenses. Cargo downloads their

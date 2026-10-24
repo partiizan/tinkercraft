@@ -6,6 +6,7 @@ ahash,0.8.12,MIT OR Apache-2.0,https://github.com/tkaitchuck/ahash
 android-activity,0.6.1,MIT OR Apache-2.0,https://github.com/rust-mobile/android-activity
 android-properties,0.2.2,MIT,https://github.com/miklelappo/android-properties
 anyhow,1.0.104,MIT OR Apache-2.0,https://github.com/dtolnay/anyhow
+arbitrary,1.5.0,MIT OR Apache-2.0,https://github.com/rust-fuzz/arbitrary/
 arboard,3.7.0,MIT OR Apache-2.0,https://github.com/1Password/arboard
 arrayvec,0.7.8,MIT OR Apache-2.0,https://github.com/bluss/arrayvec
 as-raw-xcb-connection,1.0.1,MIT OR Apache-2.0,https://github.com/psychon/as-raw-xcb-connection
@@ -59,6 +60,7 @@ cursor-icon,1.2.0,MIT OR Apache-2.0 OR Zlib,https://github.com/rust-windowing/cu
 dashu-base,0.5.1,MIT OR Apache-2.0,https://github.com/cmpute/dashu
 dashu-int,0.5.1,MIT OR Apache-2.0,https://github.com/cmpute/dashu
 dashu-ratio,0.5.1,MIT OR Apache-2.0,https://github.com/cmpute/dashu
+derive_arbitrary,1.5.0,MIT OR Apache-2.0,https://github.com/rust-fuzz/arbitrary
 directories,6.0.0,MIT OR Apache-2.0,https://github.com/soc/directories-rs
 dirs-sys,0.5.0,MIT OR Apache-2.0,https://github.com/dirs-dev/dirs-sys-rs
 dispatch,0.2.0,MIT,http://github.com/SSheldon/rust-dispatch
@@ -143,8 +145,8 @@ libc,0.2.190,MIT OR Apache-2.0,https://github.com/rust-lang/libc
 libloading,0.8.9,ISC,https://github.com/nagisa/rust_libloading/
 libm,0.2.16,MIT,https://github.com/rust-lang/compiler-builtins
 libredox,0.1.25,MIT,https://gitlab.redox-os.org/redox-os/libredox.git
-linux-raw-sys,0.4.15,Apache-2.0 WITH LLVM-exception OR Apache-2.0 OR MIT,https://github.com/sunfishcode/linux-raw-sys
 linux-raw-sys,0.12.1,Apache-2.0 WITH LLVM-exception OR Apache-2.0 OR MIT,https://github.com/sunfishcode/linux-raw-sys
+linux-raw-sys,0.4.15,Apache-2.0 WITH LLVM-exception OR Apache-2.0 OR MIT,https://github.com/sunfishcode/linux-raw-sys
 litemap,0.8.3,Unicode-3.0,https://github.com/unicode-org/icu4x
 litrs,1.0.1,MIT OR Apache-2.0,https://github.com/LukasKalbertodt/litrs
 lock_api,0.4.14,MIT OR Apache-2.0,https://github.com/Amanieu/parking_lot
@@ -349,6 +351,7 @@ zerofrom-derive,0.1.8,Unicode-3.0,https://github.com/unicode-org/icu4x
 zerotrie,0.2.5,Unicode-3.0,https://github.com/unicode-org/icu4x
 zerovec,0.11.8,Unicode-3.0,https://github.com/unicode-org/icu4x
 zerovec-derive,0.11.6,Unicode-3.0,https://github.com/unicode-org/icu4x
+zip,2.4.2,MIT,https://github.com/zip-rs/zip2.git
 zlib-rs,0.6.8,Zlib,https://github.com/trifectatechfoundation/zlib-rs
 zmij,1.0.23,MIT,https://github.com/dtolnay/zmij
 zune-core,0.5.3,MIT OR Apache-2.0 OR Zlib,https://github.com/etemesi254/zune-image

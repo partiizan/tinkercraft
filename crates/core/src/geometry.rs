@@ -243,6 +243,7 @@ pub fn bounds(n: &Node) -> Bounds {
 pub struct SourceMesh {
     pub id: String,
     pub hole: bool,
+    pub color: [u8; 3],
     pub mesh: Mesh,
 }
 pub fn sources(p: &Project) -> Vec<SourceMesh> {
@@ -260,6 +261,7 @@ pub fn sources(p: &Project) -> Vec<SourceMesh> {
             out.push(SourceMesh {
                 id: root.to_string(),
                 hole,
+                color: n.color,
                 mesh: mesh(&primitive(n)).transformed(m),
             });
         }
@@ -276,19 +278,93 @@ pub fn sources(p: &Project) -> Vec<SourceMesh> {
 /// Hidden children still participate in the group result, just as in export.
 pub fn editable_sources(p: &Project) -> Result<Vec<SourceMesh>> {
     p.validate()?;
-    p.parts
-        .iter()
-        .filter(|n| !n.hidden)
-        .map(|n| {
-            let solid = match &n.shape {
-                Shape::Group { children, .. } => scope(children)?,
-                _ => primitive(n),
-            };
-            Ok(SourceMesh {
-                id: n.id.clone(),
-                hole: n.hole,
-                mesh: mesh(&solid).transformed(n.matrix()),
-            })
+    let mut out = Vec::new();
+    for n in p.parts.iter().filter(|n| !n.hidden) {
+        for (solid, color) in colored_node(n)? {
+            if !solid.is_empty() {
+                out.push(SourceMesh {
+                    id: n.id.clone(),
+                    hole: n.hole,
+                    color,
+                    mesh: mesh(&solid),
+                });
+            }
+        }
+    }
+    Ok(out)
+}
+
+#[derive(Clone)]
+pub struct ColoredMesh {
+    pub color: [u8; 3],
+    pub mesh: Mesh,
+}
+
+fn checked(m: Manifold) -> Result<Manifold> {
+    ensure!(
+        m.status() == Error::NoError,
+        "Color Boolean failed: {:?}",
+        m.status()
+    );
+    Ok(m)
+}
+fn colored_node(n: &Node) -> Result<Vec<(Manifold, [u8; 3])>> {
+    let pieces = match &n.shape {
+        Shape::Group { children, .. } => colored_scope(children)?,
+        _ => vec![(primitive(n), n.color)],
+    };
+    pieces
+        .into_iter()
+        .map(|(m, c)| {
+            let m = m
+                .scale(MVec::new(n.scale(), n.scale(), n.scale()))
+                .rotate(n.rotation[0], n.rotation[1], n.rotation[2])
+                .translate(mv(n.position));
+            Ok((checked(m)?, c))
         })
         .collect()
+}
+// Later solids own overlapping volume. Cuts apply to every color in their scope.
+// Parts therefore form a disjoint partition of the ordinary Boolean result.
+fn colored_scope(nodes: &[Node]) -> Result<Vec<(Manifold, [u8; 3])>> {
+    let mut parts: Vec<(Manifold, [u8; 3])> = Vec::new();
+    let mut holes = Vec::new();
+    for n in nodes {
+        let incoming = colored_node(n)?;
+        if n.hole {
+            holes.extend(incoming.into_iter().map(|(m, _)| m));
+            continue;
+        }
+        for (solid, color) in incoming {
+            for (previous, _) in &mut parts {
+                *previous = checked(previous.difference(&solid))?;
+            }
+            parts.retain(|(m, _)| !m.is_empty());
+            if !solid.is_empty() {
+                parts.push((solid, color));
+            }
+        }
+    }
+    for hole in holes {
+        for (part, _) in &mut parts {
+            *part = checked(part.difference(&hole))?;
+        }
+        parts.retain(|(m, _)| !m.is_empty());
+    }
+    Ok(parts)
+}
+pub fn colored_parts(p: &Project) -> Result<Vec<ColoredMesh>> {
+    p.validate()?;
+    let pieces = colored_scope(&p.parts)?;
+    ensure!(
+        !pieces.is_empty(),
+        "No printable solid: add a solid or reduce holes"
+    );
+    Ok(pieces
+        .into_iter()
+        .map(|(solid, color)| ColoredMesh {
+            color,
+            mesh: mesh(&solid),
+        })
+        .collect())
 }

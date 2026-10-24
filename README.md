@@ -217,3 +217,28 @@ Grouped objects display their cuts directly in the editing viewport and retain
 selection and move/rotate/resize handles. Add another solid or hole and regroup to
 continue modeling. Groups currently resize uniformly; ungroup to edit individual
 components. Preview full export is a separate whole-scene inspection mode.
+
+## Checkpoints 14–15 — themes and color 3MF (0.15.0)
+
+Preferences offers Light, Dark, or System (default). System follows OS appearance
+notifications where available; Dark is the fallback when unavailable. The viewport
+and grid use the same theme. Appearance is saved locally, separately from projects.
+
+Select a solid and use Color in the inspector. Grouping preserves component colors;
+recoloring a group applies that color to all its components. Ungroup to color parts
+separately. Colors persist in schema-8 projects (older schemas load with the default
+blue-grey color). Older application versions cannot read newly saved schema-8 files.
+
+Export 3MF writes a millimeter-based assembly with colored material parts. Cuts
+apply across all colors within their scope. Later solids own overlapping volume;
+color parts do not overlap. Cut faces inherit the remaining solid's color. Hidden
+objects still export, consistent with STL. STL remains geometry-only. 3MF export
+runs on a worker so modeling stays responsive. It exports a snapshot at invocation.
+
+Import the 3MF as a model in your slicer, keeping its parts together, and assign the
+parts to your actual filaments. This is a generic 3MF model, not a Bambu project or
+AMS configuration. Per-face painting, textures, 3MF import and printer-slot mapping
+are not included. Hands-on Bambu Studio color/filament acceptance remains pending.
+Try `examples/multicolor-plate.tinkercraft` as a two-color/two-hole test.
+
+CLI: `tinkercraft-cli export-3mf INPUT.tinkercraft OUTPUT.3mf`.

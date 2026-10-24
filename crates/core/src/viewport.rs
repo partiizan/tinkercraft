@@ -265,9 +265,9 @@ pub fn render_themed(
                 let color = if hole {
                     [232, 178, 106]
                 } else if selected.contains(&s.id) {
-                    [101, 220, 182]
+                    s.color.map(|v| (v as u16 + 35).min(255) as u8)
                 } else {
-                    [141, 190, 206]
+                    s.color
                 };
                 draw(
                     camera,

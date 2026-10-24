@@ -1,0 +1,102 @@
+{
+  "format": "shapeworkshop",
+  "version": 8,
+  "units": "mm",
+  "name": "Multicolor plate",
+  "parts": [
+    {
+      "id": "plate",
+      "name": "Plate",
+      "kind": "box",
+      "hole": false,
+      "size": [
+        40,
+        30,
+        5
+      ],
+      "position": [
+        20,
+        15,
+        2.5
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "color": [
+        220,
+        60,
+        50
+      ]
+    },
+    {
+      "id": "right-half",
+      "name": "Right half",
+      "kind": "box",
+      "hole": false,
+      "size": [
+        40,
+        30,
+        5
+      ],
+      "position": [
+        60,
+        15,
+        2.5
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "color": [
+        30,
+        160,
+        210
+      ]
+    },
+    {
+      "id": "left",
+      "name": "Left hole",
+      "kind": "cylinder",
+      "hole": true,
+      "size": [
+        5,
+        5,
+        9
+      ],
+      "position": [
+        10,
+        15,
+        2.5
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "right",
+      "name": "Right hole",
+      "kind": "cylinder",
+      "hole": true,
+      "size": [
+        5,
+        5,
+        9
+      ],
+      "position": [
+        70,
+        15,
+        2.5
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ]
+    }
+  ]
+}

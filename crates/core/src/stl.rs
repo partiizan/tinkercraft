@@ -262,6 +262,7 @@ pub fn import(bytes: &[u8], name: &str, millimeters_per_unit: f64) -> Result<Nod
             clean_name
         },
         hole: false,
+        color: crate::document::default_color(),
         hidden: false,
         locked: false,
         position: [40., 15., size[2] / 2.],

@@ -30,6 +30,16 @@ jobs:
       - run: cargo clippy --workspace --all-targets --locked -- -D warnings
       - run: python scripts/test_packaging.py
       - run: cargo build --release --workspace --locked
+      - name: Export multicolor regression fixture
+        run: ./target/release/tinkercraft-cli export-3mf examples/multicolor-plate.tinkercraft multicolor-test.3mf
+      - name: Verify 3MF package and colors
+        run: python scripts/validate_3mf.py multicolor-test.3mf
+      - name: Install reference 3MF reader
+        if: runner.os == 'Linux'
+        run: python -m pip install lib3mf==2.5.0
+      - name: Validate with reference reader
+        if: runner.os == 'Linux'
+        run: python scripts/validate_3mf.py multicolor-test.3mf --reference
       - name: Package native application
         run: python scripts/package.py
       - name: Verify extracted native package

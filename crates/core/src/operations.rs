@@ -44,6 +44,7 @@ pub fn group(p: &mut Project, ids: &Selection) -> Result<String> {
             id: id.clone(),
             name: "Group".into(),
             hole: false,
+            color: crate::document::default_color(),
             hidden: false,
             locked: false,
             position: pivot.to_array(),

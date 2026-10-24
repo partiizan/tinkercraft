@@ -16,6 +16,7 @@ struct Computed {
     revision: u64,
     sources: Vec<SourceMesh>,
     result: Result<Mesh, String>,
+    result_sources: Vec<SourceMesh>,
 }
 #[derive(Clone)]
 enum Pending {
@@ -41,6 +42,8 @@ struct Drag {
 }
 pub struct Editor {
     export_requested: bool,
+    export_3mf: bool,
+    export_job: Option<mpsc::Receiver<Result<(), String>>>,
     import_path: Option<PathBuf>,
     import_scale: f64,
     import_job: Option<mpsc::Receiver<Result<Node, String>>>,
@@ -50,6 +53,7 @@ pub struct Editor {
     file: DocumentFile,
     selection: Selection,
     draft: Option<Node>,
+    color_editing: bool,
     name: String,
     sender: mpsc::Sender<(u64, Project)>,
     receiver: mpsc::Receiver<Computed>,
@@ -57,6 +61,7 @@ pub struct Editor {
     ready: u64,
     sources: Vec<SourceMesh>,
     result: Option<Mesh>,
+    result_sources: Vec<SourceMesh>,
     status: String,
     camera: Camera,
     preferences_path: Option<PathBuf>,
@@ -101,15 +106,27 @@ impl Editor {
                     let sources =
                         geometry::editable_sources(&p).unwrap_or_else(|_| geometry::sources(&p));
                     let result = evaluate(&p).map_err(|e| e.to_string());
+                    let result_sources = geometry::colored_parts(&p)
+                        .unwrap_or_default()
+                        .into_iter()
+                        .map(|part| SourceMesh {
+                            id: String::new(),
+                            hole: false,
+                            color: part.color,
+                            mesh: part.mesh,
+                        })
+                        .collect();
                     Computed {
                         revision,
                         sources,
                         result,
+                        result_sources,
                     }
                 })
                 .unwrap_or_else(|_| Computed {
                     revision,
                     sources: vec![],
+                    result_sources: vec![],
                     result: Err("Geometry engine failed on this model".into()),
                 });
                 if out_tx.send(computed).is_err() {
@@ -155,6 +172,8 @@ impl Editor {
         let p = Project::demo();
         let mut app = Self {
             export_requested: false,
+            export_3mf: false,
+            export_job: None,
             import_path: None,
             import_scale: 1.,
             import_job: None,
@@ -164,6 +183,7 @@ impl Editor {
             file: DocumentFile::default(),
             selection: Selection::from([p.parts[0].id.clone()]),
             draft: None,
+            color_editing: false,
             name: p.name.clone(),
             sender: tx,
             receiver: out_rx,
@@ -171,6 +191,7 @@ impl Editor {
             ready: u64::MAX,
             sources: vec![],
             result: None,
+            result_sources: vec![],
             status: "Starting geometry engine…".into(),
             camera: Camera::default(),
             preferences_path,
@@ -228,6 +249,7 @@ impl Editor {
         app
     }
     fn refresh(&mut self) {
+        self.color_editing = false;
         self.selection
             .retain(|id| self.history.project.parts.iter().any(|p| &p.id == id));
         if self.selection.is_empty()
@@ -253,6 +275,7 @@ impl Editor {
         self.name = self.history.project.name.clone();
         self.revision += 1;
         self.result = None;
+        self.result_sources.clear();
         self.preview = false;
         self.status = "Calculating…".into();
         let _ = self
@@ -464,9 +487,33 @@ impl Editor {
         self.commit_draft();
         self.export_requested = true;
     }
-    fn write_export(&mut self) {
+    fn write_export(&mut self, ctx: &egui::Context) {
         self.export_requested = false;
         if self.ready != self.revision {
+            return;
+        }
+        if self.export_3mf {
+            if let Some(path) = rfd::FileDialog::new()
+                .add_filter("3MF color model", &["3mf"])
+                .set_file_name("tinkercraft.3mf")
+                .save_file()
+            {
+                let project = self.history.project.clone();
+                let (tx, rx) = mpsc::channel();
+                self.export_job = Some(rx);
+                self.status = "Exporting colored 3MF…".into();
+                let ctx = ctx.clone();
+                std::thread::spawn(move || {
+                    let result = std::panic::catch_unwind(|| {
+                        three_mf::export(&project)
+                            .and_then(|bytes| storage::atomic_write(&path, &bytes))
+                            .map_err(|e| e.to_string())
+                    })
+                    .unwrap_or_else(|_| Err("3MF geometry export failed".into()));
+                    let _ = tx.send(result);
+                    ctx.request_repaint();
+                });
+            }
             return;
         }
         let Some(m) = &self.result else { return };
@@ -524,7 +571,18 @@ impl Editor {
                     )
                     .clicked()
                 {
+                    self.export_3mf = false;
                     self.export()
+                }
+                if ui
+                    .add_enabled(
+                        self.result.is_some() && self.export_job.is_none(),
+                        egui::Button::new("Export 3MF"),
+                    )
+                    .clicked()
+                {
+                    self.export_3mf = true;
+                    self.export();
                 }
                 ui.separator();
                 ui.label(if self.history.dirty() {
@@ -731,8 +789,9 @@ ui.add_enabled_ui(!protected,|ui|{let mut commit=false;if let Some(n)=&mut self.
 if ui.selectable_label(n.hole,"Hole").clicked(){n.hole=true;commit=true}});ui.separator();if let Shape::Group{scale,children}=&mut n.shape{ui.label(format!("{} components · ungroup to edit",children.len()));ui.label("Uniform scale");commit|=number(ui,scale,0.01,0.00001..=100000.);}else{ui.label("Dimensions · mm");let size=n.size().unwrap();for(axis,v)in size.iter().enumerate(){if n.kind()=="Sphere"&&axis>0{continue}
 if matches!(n.shape,Shape::Cylinder{..}|Shape::Cone{..})&&axis==1{continue}let label=if matches!(n.shape,Shape::Box{..}|Shape::Wedge{..}|Shape::Roof{..}|Shape::Mesh{..}){["Width X","Depth Y","Height Z"][axis]}else if axis==0{"Diameter"}else{"Height Z"};let mut value=*v;ui.horizontal(|ui|{ui.label(label);if number(ui,&mut value,0.1,0.01..=1000.){commit=true} });n.set_dimension(axis,value);}}
  ui.separator();ui.label("Position · mm");for axis in 0..3{ui.horizontal(|ui|{ui.label(["X","Y","Z"][axis]);commit|=number(ui,&mut n.position[axis],0.1,-10000. ..=10000.);});}ui.separator();ui.label("Rotation · degrees");for axis in 0..3{ui.horizontal(|ui|{ui.label(["X","Y","Z"][axis]);commit|=number(ui,&mut n.rotation[axis],1.,-3600. ..=3600.);});}
+ if !n.hole { ui.separator(); ui.horizontal(|ui| { ui.label("Color"); let mut color=n.color; if ui.color_edit_button_srgb(&mut color).changed() { n.set_color_recursive(color); self.color_editing=true; } }); if matches!(n.shape,Shape::Group{..}) { ui.small("Choosing a color recolors every component; ungroup to color separately."); } }
  }else{ui.heading(format!("{} selected",self.selection.len()));ui.label("Group objects to move or rotate them together.");}
-if commit{self.commit_draft();}ui.separator();ui.horizontal(|ui|{if ui.button("Duplicate").clicked(){self.operation(|p,s|Ok(Some(operations::duplicate(p,s))));}
+if commit || (self.color_editing && !ctx.input(|i| i.pointer.any_down())) {self.color_editing=false;self.commit_draft();}ui.separator();ui.horizontal(|ui|{if ui.button("Duplicate").clicked(){self.operation(|p,s|Ok(Some(operations::duplicate(p,s))));}
 if ui.button("Delete").clicked(){self.operation(|p,s|{p.parts.retain(|n|!s.contains(&n.id));Ok(None)});}});if ui.button("Drop to workplane").clicked(){self.operation(|p,s|{operations::drop_to_plane(p,s)?;Ok(None)});}ui.separator();ui.heading("Align selection");ui.small("Combined source bounds, before cuts");for axis in 0..3{ui.horizontal(|ui|{ui.label(["X","Y","Z"][axis]);for(mode,label)in[(-1,"Min"),(0,"Center"),(1,"Max")]{if ui.add_enabled(self.selection.len()>1,egui::Button::new(label)).clicked(){self.operation(|p,s|{operations::align(p,s,axis,mode)?;Ok(None)});}}});}ui.separator();ui.heading("Mirror selection");ui.small("In place about the selection center");ui.horizontal(|ui|{for(axis,label)in["X","Y","Z"].iter().enumerate(){if ui.button(*label).clicked(){self.operation(|p,s|{operations::mirror(p,s,axis)?;Ok(None)});}}});ui.separator();ui.small("Z up · millimeters\nShift-click selects multiple objects. Ungrouping exposes holes to sibling scope. Hole groups must be made Solid first.");});});});
     }
     fn shortcuts(&mut self, ctx: &egui::Context) {
@@ -1014,6 +1073,7 @@ if ui.button("Delete").clicked(){self.operation(|p,s|{p.parts.retain(|n|!s.conta
                         .map(|s| SourceMesh {
                             id: s.id.clone(),
                             hole: s.hole,
+                            color: s.color,
                             mesh: if s.id == n.id {
                                 s.mesh.transformed(matrix)
                             } else {
@@ -1065,13 +1125,9 @@ if ui.button("Delete").clicked(){self.operation(|p,s|{p.parts.retain(|n|!s.conta
                     &self.camera,
                     width,
                     height,
-                    &self.sources,
+                    if self.preview { &self.result_sources } else { &self.sources },
                     &self.selection,
-                    if self.preview {
-                        self.result.as_ref()
-                    } else {
-                        None
-                    },
+                    None,
                     self.viewport_dark,
                 );
                 let image = egui::ColorImage::from_rgba_unmultiplied([width, height], &frame.rgba);
@@ -1175,6 +1231,7 @@ impl eframe::App for Editor {
             }
             self.ready = c.revision;
             self.sources = c.sources;
+            self.result_sources = c.result_sources;
             match c.result {
                 Ok(m) => {
                     self.status = format!(
@@ -1238,7 +1295,23 @@ impl eframe::App for Editor {
         self.import_modal(ctx);
         self.preferences_modal(ctx);
         if self.export_requested && self.ready == self.revision && self.pending.is_none() {
-            self.write_export();
+            self.write_export(ctx);
+        }
+        if let Some(job) = &self.export_job {
+            match job.try_recv() {
+                Ok(result) => {
+                    self.status = match result {
+                        Ok(()) => "3MF exported · assign parts to filaments in your slicer".into(),
+                        Err(e) => e,
+                    };
+                    self.export_job = None;
+                }
+                Err(mpsc::TryRecvError::Disconnected) => {
+                    self.status = "3MF export worker stopped".into();
+                    self.export_job = None;
+                }
+                Err(mpsc::TryRecvError::Empty) => {}
+            }
         }
         self.sync_preferences();
         if self.preferences_due.is_some() {
