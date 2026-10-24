@@ -34,6 +34,7 @@ with tempfile.TemporaryDirectory(prefix='tinkercraft-dialogs-') as directory:
         return [(i,xd('getwindowname',i)) for i in ids]
     def dialog():return next((i for i,name in windows() if ('Save' in name or 'Open' in name) and 'TinkerCraft' not in name),None)
     def pick(path):
+        print('Picker:',path.name,flush=True)
         window=wait_for(dialog);xd('windowfocus',window);key('ctrl+l');xd('type','--clearmodifiers','--delay','1',str(path));key('Return')
         time.sleep(.4)
         if dialog():key('Return')
@@ -41,7 +42,10 @@ with tempfile.TemporaryDirectory(prefix='tinkercraft-dialogs-') as directory:
         xd('windowfocus',main)
     def snapshot():return json.loads(next((folder/'data').rglob('recovery.tinkercraft')).read_text())
     try:
-        launch(['/usr/libexec/xdg-desktop-portal-gtk'])
+        # D-Bus starts before xvfb-run; propagate the display and isolated data
+        # paths before it auto-activates the GTK backend.
+        keys=['DISPLAY','XAUTHORITY','XDG_CURRENT_DESKTOP','XDG_CONFIG_HOME','XDG_DATA_HOME','XDG_RUNTIME_DIR','NO_AT_BRIDGE','GSETTINGS_BACKEND']
+        subprocess.run(['dbus-update-activation-environment',*[k for k in keys if k in env]],env=env,check=True)
         launch(['/usr/libexec/xdg-desktop-portal','--verbose'])
         time.sleep(2)
         app=launch([str(root/'target/release/tinkercraft')])
