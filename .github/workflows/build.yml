@@ -45,6 +45,9 @@ jobs:
       - name: Verify extracted native package and window (Linux)
         if: runner.os == 'Linux'
         run: xvfb-run -a python scripts/verify_all_releases.py --window-smoke
+      - name: Identify Windows graphics adapter
+        if: runner.os == 'Windows'
+        run: Get-CimInstance Win32_VideoController | Select-Object Name, DriverVersion, Status | Format-List
       - name: Verify extracted native package and window (Mac/Windows)
         if: runner.os != 'Linux'
         run: python scripts/verify_all_releases.py --window-smoke

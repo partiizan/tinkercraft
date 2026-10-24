@@ -57,7 +57,9 @@ def main():
             if subprocess.check_output([str(app),'--version'],cwd=folder,env=env,text=True).strip()!=f"TinkerCraft {m['version']}":raise ValueError('Packaged desktop version mismatch')
             if args.window_smoke:
                 report=folder/'native-window.json'
-                subprocess.run([str(app),'--smoke-test',str(report)],cwd=folder,env=env,check=True,timeout=90)
+                result=subprocess.run([str(app),'--smoke-test',str(report)],cwd=folder,env=env,timeout=90)
+                if result.returncode:
+                    raise RuntimeError(report.read_text() if report.exists() else f'Native app exited {result.returncode} without a report')
                 evidence=json.loads(report.read_text())
                 if evidence.get('native_window')!='passed' or evidence.get('version')!=m['version']:raise ValueError('Packaged native window failed')
                 print(json.dumps(evidence))

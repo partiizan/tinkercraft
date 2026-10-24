@@ -26,9 +26,27 @@ fn main() -> eframe::Result {
             .with_min_inner_size([1000., 700.]),
         ..Default::default()
     };
-    eframe::run_native(
+    let report_path = smoke_report.clone();
+    let result = eframe::run_native(
         "TinkerCraft",
         options,
         Box::new(move |cc| Ok(Box::new(editor::Editor::new(cc, smoke_report)))),
-    )
+    );
+    if let Err(error) = &result {
+        if let Some(path) = report_path {
+            let _ = std::fs::write(
+                path,
+                serde_json::json!({"startup_error": error.to_string()}).to_string(),
+            );
+        } else {
+            rfd::MessageDialog::new()
+                .set_title("TinkerCraft could not open a window")
+                .set_description(format!(
+                    "Check that your graphics driver supports modern OpenGL.\n\n{error}"
+                ))
+                .set_level(rfd::MessageLevel::Error)
+                .show();
+        }
+    }
+    result
 }
