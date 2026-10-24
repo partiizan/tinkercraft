@@ -115,3 +115,18 @@ fn three_mf_has_core_package_materials_assembly_and_escaped_names() {
     );
     assert!(three_mf::export(&Project::default()).is_err());
 }
+
+#[test]
+fn export_names_filter_xml_forbidden_characters() {
+    let mut p = multicolor();
+    p.name = "A\u{ffff}B\u{fffe}C".into();
+    let mut archive = zip::ZipArchive::new(Cursor::new(three_mf::export(&p).unwrap())).unwrap();
+    let mut xml = String::new();
+    archive
+        .by_name("3D/3dmodel.model")
+        .unwrap()
+        .read_to_string(&mut xml)
+        .unwrap();
+    assert!(xml.contains(">ABC</metadata>"));
+    assert!(!xml.contains('\u{ffff}'));
+}

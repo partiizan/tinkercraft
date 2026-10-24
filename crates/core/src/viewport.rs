@@ -273,7 +273,7 @@ pub fn render_themed(
                     camera,
                     &s.mesh,
                     color,
-                    Some(&s.id),
+                    (!s.id.is_empty()).then_some(s.id.as_str()),
                     hole,
                     &mut frame,
                     &mut depth,

@@ -121,7 +121,20 @@ with tempfile.TemporaryDirectory(prefix='tinkercraft-smoke-') as directory:
         click(27,99);wait_for(lambda:snapshot()['parts'][-1]['size'][0]==80)
         click(51,164)
         wait_for(lambda:len(snapshot()['parts'])==5 and snapshot()['parts'][3]['kind']=='mesh')
-        print('PASS: numeric undo/redo, resize undo/redo/cancel, wedge/roof palette, group/ungroup, STL review/add/undo, imported mesh resizing, recovery restore, hide/show, lock enforcement, nudge, persisted camera/tool')
+        stop();launch('appearance-color')
+        wait_for(lambda:len(snapshot()['parts'])==3)
+        original_color=snapshot()['parts'][0]['color']
+        click(275,18);click(620,434);click(545,551)
+        wait_for(lambda:json.loads(next(Path(env['XDG_CONFIG_HOME']).rglob('preferences.json')).read_text())['appearance']=='light')
+        click(1262,375);click(1020,720);click(800,850)
+        wait_for(lambda:snapshot()['parts'][0]['color']!=original_color)
+        changed_color=snapshot()['parts'][0]['color']
+        key('ctrl+z');wait_for(lambda:snapshot()['parts'][0]['color']==original_color)
+        key('ctrl+shift+z');wait_for(lambda:snapshot()['parts'][0]['color']==changed_color)
+        stop();launch('appearance-color');click(595,501)
+        wait_for(lambda:snapshot()['parts'][0]['color']==changed_color)
+        assert json.loads(next(Path(env['XDG_CONFIG_HOME']).rglob('preferences.json')).read_text())['appearance']=='light'
+        print('PASS: numeric undo/redo, resize undo/redo/cancel, wedge/roof palette, group/ungroup, STL review/add/undo, imported mesh resizing, recovery restore, hide/show, lock enforcement, nudge, persisted camera/tool, appearance and color undo/redo/recovery')
     except Exception:
         try:
             from PIL import ImageGrab

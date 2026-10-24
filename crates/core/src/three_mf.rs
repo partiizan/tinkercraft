@@ -9,7 +9,9 @@ use zip::{ZipWriter, write::SimpleFileOptions};
 
 fn xml(s: &str) -> String {
     s.chars()
-        .filter(|c| *c >= ' ' || matches!(c, '\n' | '\r' | '\t'))
+        .filter(|c| {
+            (*c >= ' ' && !matches!(c, '\u{fffe}' | '\u{ffff}')) || matches!(c, '\n' | '\r' | '\t')
+        })
         .collect::<String>()
         .replace('&', "&amp;")
         .replace('<', "&lt;")
