@@ -1,7 +1,7 @@
 # Checkpoint 17 — MVP distribution and handoff
 
 Version 0.16.0 completes the planned implementation/release work for the local
-modeling MVP, conditional on the native CI release gates passing.
+modeling MVP, with all native CI release gates passed in run 40143316634.
 
 - Packages include version, operating system and architecture in their filenames.
 - Mac signing remains after all bundle resources are assembled; extracted bundles
@@ -18,3 +18,7 @@ No additional feature checkpoint is needed for this MVP's agreed scope. Remainin
 acceptance tasks are hands-on Mac/Windows dialogs/shortcuts, varied graphics drivers,
 and a real printer trial. Those may reveal follow-up bugs; they are not silently
 marked tested. Modeling parity work remains a separate roadmap.
+
+Published: https://github.com/partiizan/tinkercraft/releases/tag/v0.16.0
+Source: `deed5f89384c757fd960c1221d323fffa1e118d9`. All three native jobs and
+the publication job passed. See RELEASE.md for the final evidence and limitations.

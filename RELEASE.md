@@ -17,6 +17,19 @@ assignment is required. Physical printing has not been tested.
 Mac bundles are ad-hoc signed and verified, but not Developer ID signed/notarized.
 Windows executables are unsigned. No installer or automatic updater is included.
 
+## Verified publication
+
+[Native run 40143316634](https://github.com/partiizan/tinkercraft/actions/runs/40143316634)
+passed all three native jobs and the release job on source commit
+`deed5f89384c757fd960c1221d323fffa1e118d9`.
+[Version 0.16.0](https://github.com/partiizan/tinkercraft/releases/tag/v0.16.0)
+contains Apple Silicon Mac, Windows x64 and Linux x64 packages and checksums.
+The Windows framebuffer probe captured 1024 × 768 pixels with 76,244 model pixels
+and 1,682 distinct colors using Mesa llvmpipe. Mac and Linux used their default
+platform graphics setup. Engine tests, Clippy, packaging checks and 3MF checks
+passed on every target; Linux also passed reference-lib3mf and input regression.
+The manual acceptance limitations above still apply.
+
 ## Build and verify on your native platform
 
 Install the prerequisites from README.md, then from the source folder:
