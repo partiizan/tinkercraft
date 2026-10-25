@@ -37,3 +37,22 @@ Automated checks do not substitute for hands-on acceptance. Per user direction,
 physical Mac/Windows testing, interactive slicer filament assignment and a real
 print are deferred until the feature batch is delivered. Issue #3 tracks those
 remaining gates and the explicit stable-release decision.
+
+## Delivered candidate and evidence
+
+Published **v0.18.0-rc.17**, source `ed977c92bf9f50dc2e3e1d3a8e136ec67449f0a0`:
+https://github.com/partiizan/tinkercraft/releases/tag/v0.18.0-rc.17
+
+All three native jobs and release publication passed in run 40221076627:
+https://github.com/partiizan/tinkercraft/actions/runs/40221076627
+
+Local validation: all 52 core regression tests, rustfmt, strict Clippy, release
+compilation and four packaging tests passed. The Linux native regression passed,
+then passed again with a new group-content scenario: select the demo plate and its
+two holes, group, F2, enlarge one hole from 5 to 10 mm, Apply, Undo, Redo. Recovery
+snapshots verified the child dimension at each step while retaining the group.
+This scenario is now in scripts/native-smoke.py for subsequent builds. The RC17
+CI run predates that test-script-only addition; application source is unchanged.
+
+Artifacts target Apple Silicon macOS, Windows x64 and Linux x64. Hands-on hardware,
+interactive slicer and physical-print acceptance remain open, as described above.

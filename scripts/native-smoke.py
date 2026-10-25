@@ -134,6 +134,16 @@ with tempfile.TemporaryDirectory(prefix='tinkercraft-smoke-') as directory:
         stop();launch('appearance-color');click(595,501)
         wait_for(lambda:snapshot()['parts'][0]['color']==changed_color)
         assert json.loads(next(Path(env['XDG_CONFIG_HOME']).rglob('preferences.json')).read_text())['appearance']=='light'
+        stop();launch('group-contents')
+        wait_for(lambda:len(snapshot()['parts'])==3)
+        key('ctrl+a');key('ctrl+g');wait_for(lambda:len(snapshot()['parts'])==1)
+        key('F2');time.sleep(1)
+        xd('mousemove',616,592,'click','--repeat','2','--delay','100',1)
+        key('ctrl+a');xd('type','10');key('Return');click(440,750)
+        wait_for(lambda:snapshot()['parts'][0]['children'][1]['size'][0]==10)
+        key('ctrl+z');wait_for(lambda:snapshot()['parts'][0]['children'][1]['size'][0]==5)
+        key('ctrl+shift+z');wait_for(lambda:snapshot()['parts'][0]['children'][1]['size'][0]==10)
+        print('PASS: nested hole dimension edit with group-preserving undo/redo')
         print('PASS: numeric undo/redo, resize undo/redo/cancel, wedge/roof palette, group/ungroup, STL review/add/undo, imported mesh resizing, recovery restore, hide/show, lock enforcement, nudge, persisted camera/tool, appearance and color undo/redo/recovery')
     except Exception:
         try:
