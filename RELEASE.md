@@ -85,9 +85,9 @@ entry point without opening a window; it is not a graphics test.
 - Check Cmd shortcuts on Mac / Ctrl shortcuts elsewhere; inspect native pickers.
 - Run from the extracted package without the source tree and without network access.
 
-Linux file-picker interaction was not exercised in the headless Xvfb container;
-a working desktop portal backend is required. Bambu Studio model import is verified, but slicing and an actual print have not
-been verified. No distribution certificate, installer or automatic updater is included.
+Linux GTK portal dialogs are now exercised in CI (RC16); a working desktop portal
+backend is required. Bambu CLI import and slicing are verified; interactive filament
+assignment and an actual print have not been verified. No distribution certificate, installer or automatic updater is included.
 
 ## Checkpoint 11 hardening
 
@@ -125,3 +125,13 @@ only exposes legacy OpenGL. These test-only DLLs are not shipped in the archive.
 The check verifies the native Windows application/window/rendering path, not
 compatibility with every physical GPU. Startup failures now display a useful
 error dialog instead of silently exiting.
+
+## Current acceptance evidence: RC16
+
+[0.17.0-rc.16](https://github.com/partiizan/tinkercraft/releases/tag/v0.17.0-rc.16)
+passed all three native jobs in [run 40145152773](https://github.com/partiizan/tinkercraft/actions/runs/40145152773).
+Linux additionally passed actual GTK file-dialog acceptance. Bambu Studio sliced
+STL and single-/two-filament 3MF exports produced by the downloaded RC CLI.
+See CHECKPOINT18.md, CHECKPOINT19.md and validation/checkpoint19-bambu.json.
+Manual acceptance remains tracked in issue #3; these results do not promote the
+candidate to stable.

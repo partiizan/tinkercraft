@@ -1,5 +1,5 @@
 {
-  "tinkercraft": "TinkerCraft CLI 0.17.0",
+  "tinkercraft": "TinkerCraft CLI 0.17.0-rc.16",
   "fixture_sha256": "3af37f5d0ac85ba11c8a7cb53c338f081bccfce9d8a80c9dc2fa1756f6c6d2ca",
   "bambu_binary_sha256": "d267ad0b4589c46cb18f49e2414f87a529b446dc992cb6ab8a728fe43f549eb8",
   "imports": {
@@ -42,12 +42,12 @@
         {
           "filament_id": "GFL99",
           "id": 1,
-          "main_used_g": 7.415159702301025,
-          "total_used_g": 7.415159702301025
+          "main_used_g": 7.416006565093994,
+          "total_used_g": 7.416006565093994
         }
       ],
       "filament_changes": 0,
-      "estimated_seconds": 1154.6558837890625,
+      "estimated_seconds": 1157.6405029296875,
       "warnings": ""
     },
     "3mf_single_filament": {
@@ -57,12 +57,12 @@
         {
           "filament_id": "GFL99",
           "id": 1,
-          "main_used_g": 7.415184497833252,
-          "total_used_g": 7.415184497833252
+          "main_used_g": 7.416031360626221,
+          "total_used_g": 7.416031360626221
         }
       ],
       "filament_changes": 0,
-      "estimated_seconds": 1153.400390625,
+      "estimated_seconds": 1156.3848876953125,
       "warnings": ""
     },
     "3mf_two_filaments": {
@@ -72,18 +72,18 @@
         {
           "filament_id": "GFL99",
           "id": 1,
-          "main_used_g": 3.9605841636657715,
-          "total_used_g": 9.918878555297852
+          "main_used_g": 3.9602110385894775,
+          "total_used_g": 9.91850471496582
         },
         {
           "filament_id": "GFL99",
           "id": 2,
-          "main_used_g": 3.6325743198394775,
-          "total_used_g": 11.457616806030273
+          "main_used_g": 3.632201910018921,
+          "total_used_g": 11.457243919372559
         }
       ],
       "filament_changes": 25,
-      "estimated_seconds": 4450.0517578125,
+      "estimated_seconds": 4446.5556640625,
       "warnings": ""
     }
   },

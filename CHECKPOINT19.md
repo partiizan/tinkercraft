@@ -2,8 +2,9 @@
 
 Extended scripts/validate_slicer.py from import checks to actual slicing with the
 official Bambu Studio 02.08.02.61 Linux build. The checked-in result is
-validation/checkpoint19-bambu.json. This is a local CLI test with the 0.17.0 source
-engine, not interactive UI or physical printer evidence.
+validation/checkpoint19-bambu.json. This was rerun using the downloaded, checksum-verified **0.17.0-rc.16 Linux CLI**,
+not merely a local development binary. It is not interactive UI or physical
+printer evidence.
 
 The 80 × 30 × 5 mm fixture imports as manifold geometry. Both STL and single-filament
 3MF slice to 25 layers. A Bambu-created project with its two parts programmatically
@@ -29,3 +30,7 @@ Remaining: interactive Bambu part/filament assignment, slicing with the user's
 actual profiles, and an X1C print with measured dimensions/holes/color boundaries.
 Record that evidence in ACCEPTANCE.md and issues #2/#3. This checkpoint is not
 marked fully complete until those hands-on checks have been performed.
+
+The exact RC package passed import and all three slicing cases after publication.
+The result records the candidate version, fixture hash and Bambu executable hash.
+Generated G-code was deleted after testing; the report is retained in the repository.

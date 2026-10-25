@@ -28,7 +28,7 @@ Process profile/layer height: ___
 
 Use the included multicolor-plate.tinkercraft example. Open its STL and 3MF exports
 in Bambu Studio as models. Keep the 3MF's two parts together and manually assign
-filaments. Expected model envelope: 80 × 30 × 5 mm.
+filaments. Expected model envelope: 80 × 30 × 5 mm, with two nominal 5 mm through-holes.
 
 - [ ] Slicer dimensions and two through-holes are correct.
 - [ ] The two 3MF parts can be assigned distinct filaments interactively.
