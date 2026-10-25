@@ -1,3 +1,19 @@
+This candidate adds five modeling checkpoints (21–25): measurements and a
+workplane ruler, numeric editing of nested group components, equal-center/equal-gap
+distribution, linear/radial repeated copies, and adjustable curve resolution.
+Open Modeling tools with M; select a group and press F2 to edit its contents.
+Group edits preserve the group transform and apply as one undo step.
+
+Measurements use world-axis source bounds before cuts, not exact surface clearance.
+Point picking uses the Z=0 workplane; numeric ruler points support arbitrary XYZ.
+Radial copies rotate around world Z. Curve resolution defaults to the previous
+96 segments and is stored in schema 9. Older projects load without changing their
+default resolution; older app versions cannot reopen schema-9 saves.
+
+At the user's request, hands-on OS/slicer/print acceptance is deferred until this
+feature batch is complete. It remains an explicit gate before stable release.
+See CHECKPOINT21-25.md for scope and validation details.
+
 This candidate adds real Linux GTK file-dialog regression and keyboard shortcuts
 for STL import (Cmd/Ctrl-I), STL export (Cmd/Ctrl-Shift-E) and 3MF export
 (Cmd/Ctrl-Alt-E). Bambu CLI validation now includes actual single- and two-filament
@@ -5,7 +21,7 @@ slicing. See CHECKPOINT18.md, CHECKPOINT19.md and ACCEPTANCE.md for evidence and
 remaining hands-on checks; neither checkpoint is fully signed off yet.
 
 This is a **release candidate**, not a stable release. Each successful main-branch
-build receives a unique `0.17.0-rc.N` version; the tag and downloads identify the
+build receives a unique `0.18.0-rc.N` version; the tag and downloads identify the
 exact candidate. The number is the workflow run number, not a completed-checkpoint
 count. Rerunning a workflow retains its candidate identity across all platforms.
 

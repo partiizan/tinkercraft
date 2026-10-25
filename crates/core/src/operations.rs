@@ -45,6 +45,7 @@ pub fn group(p: &mut Project, ids: &Selection) -> Result<String> {
             name: "Group".into(),
             hole: false,
             color: crate::document::default_color(),
+            segments: crate::document::default_segments(),
             hidden: false,
             locked: false,
             position: pivot.to_array(),

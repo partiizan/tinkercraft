@@ -2,7 +2,7 @@
 
 ## Current release-candidate policy
 
-New main-branch builds publish as GitHub **Pre-releases**, versioned `0.17.0-rc.N`,
+New main-branch builds publish as GitHub **Pre-releases**, versioned `0.18.0-rc.N`,
 after all three native jobs pass. Manual workflow runs on main do the same;
 pull requests and failed builds do not publish. A rerun keeps the same candidate
 number so partial retries cannot mix different platform versions. Already published
@@ -51,3 +51,10 @@ objects for local 3D printing. Prioritize dimensioning, placement, combining sol
 and holes, organization, measurement and printable export. It does not mean
 replicating the full Tinkercad site, content ecosystem, social features or branding.
 The 12–20 parity-checkpoint range remains provisional pending a modeling-only audit.
+
+## Checkpoints 21–25 · modeling tools
+
+Measurement/ruler tools, nested component editing, distribution, repeated copies
+and curve resolution are implemented together in the 0.18 RC series. See
+CHECKPOINT21-25.md for limits and validation. Hands-on acceptance is deferred until
+this batch is delivered; checkpoints 18–20 remain open acceptance/release gates.

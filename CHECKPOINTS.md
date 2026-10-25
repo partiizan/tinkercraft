@@ -111,3 +111,10 @@ and the remaining hands-on OS/filament/print acceptance limits.
 shortcuts. 19 adds reproducible Bambu slicing with resolved X1C/PLA presets and
 programmatic two-filament assignment. See CHECKPOINT18.md, CHECKPOINT19.md and
 ACCEPTANCE.md. Physical Mac/Windows and print evidence remain required in #3.
+
+## Checkpoints 21–25 · modeling tools
+
+Measurement/ruler tools, nested component editing, distribution, repeated copies
+and curve resolution are implemented together in the 0.18 RC series. See
+CHECKPOINT21-25.md for limits and validation. Hands-on acceptance is deferred until
+this batch is delivered; checkpoints 18–20 remain open acceptance/release gates.

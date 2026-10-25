@@ -43,11 +43,13 @@ pub fn points(n: &Node) -> Vec<Vec3> {
             );
         }
         Shape::Sphere { .. } => {
-            // Same latitude/longitude tessellation as checkpoint 6, with f32 source coordinates.
-            for lat in 0..=24 {
-                let theta = lat as f64 * std::f64::consts::PI / 24.;
-                for lon in 0..48 {
-                    let phi = lon as f64 * std::f64::consts::TAU / 48.;
+            // Default 96 retains the legacy 48-longitude / 24-latitude sphere.
+            let latitudes = n.segments / 4;
+            let longitudes = n.segments / 2;
+            for lat in 0..=latitudes {
+                let theta = lat as f64 * std::f64::consts::PI / latitudes as f64;
+                for lon in 0..longitudes {
+                    let phi = lon as f64 * std::f64::consts::TAU / longitudes as f64;
                     p.push([
                         (-s[0] / 2. * phi.cos() * theta.sin()) as f32 as f64,
                         (-s[0] / 2. * phi.sin() * theta.sin()) as f32 as f64,
@@ -57,8 +59,8 @@ pub fn points(n: &Node) -> Vec<Vec3> {
             }
         }
         _ => {
-            for i in 0..96 {
-                let a = i as f64 * std::f64::consts::TAU / 96.;
+            for i in 0..n.segments {
+                let a = i as f64 * std::f64::consts::TAU / n.segments as f64;
                 p.push([s[0] / 2. * a.cos(), s[0] / 2. * a.sin(), -s[2] / 2.]);
                 if !matches!(n.shape, Shape::Cone { .. }) {
                     p.push([s[0] / 2. * a.cos(), s[0] / 2. * a.sin(), s[2] / 2.]);
@@ -77,9 +79,13 @@ fn mv(v: Vec3) -> MVec {
 pub fn primitive(n: &Node) -> Manifold {
     match &n.shape {
         Shape::Box { size } => Manifold::cube(mv(*size), true),
-        Shape::Cylinder { size } => {
-            Manifold::cylinder_centered(size[2], size[0] / 2., size[0] / 2., 96, true)
-        }
+        Shape::Cylinder { size } => Manifold::cylinder_centered(
+            size[2],
+            size[0] / 2.,
+            size[0] / 2.,
+            n.segments as i32,
+            true,
+        ),
         Shape::Mesh { triangles, .. } => crate::stl::manifold(&points(n), triangles),
         _ => Manifold::hull(&points(n).into_iter().map(mv).collect::<Vec<_>>()),
     }

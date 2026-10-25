@@ -94,3 +94,10 @@ Group drop, nudge shortcuts, fit-selection and draft-aware export are implemente
 See RELEASE.md for target-specific evidence and still-pending native runtime gates.
 Hide/lock, preferences and group drop are now implemented. Native 3D rendering
 still uses the CPU rasterizer.
+
+## Schema 9 · curve resolution
+
+0.18 reads schemas 1–9 and writes schema 9. Each node has a segments field; legacy
+files default to 96, preserving prior tessellation. Curved primitives accept
+multiples of 4 from 24 through 192. Keep a copy of older project files if you need
+to reopen them in an earlier app; schema-9 saves require this version or newer.

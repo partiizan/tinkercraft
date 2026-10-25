@@ -42,6 +42,8 @@ pub struct Node {
     pub hole: bool,
     #[serde(default = "default_color")]
     pub color: [u8; 3],
+    #[serde(default = "default_segments")]
+    pub segments: u32,
     #[serde(default)]
     pub hidden: bool,
     #[serde(default)]
@@ -51,6 +53,9 @@ pub struct Node {
     pub rotation: Vec3,
     #[serde(flatten)]
     pub shape: Shape,
+}
+pub fn default_segments() -> u32 {
+    96
 }
 pub fn default_color() -> [u8; 3] {
     [141, 190, 206]
@@ -84,6 +89,7 @@ impl Node {
             name: kind.to_owned(),
             hole: false,
             color: default_color(),
+            segments: default_segments(),
             hidden: false,
             locked: false,
             position: [40., 15., 10.],
@@ -181,7 +187,7 @@ impl Default for Project {
     fn default() -> Self {
         Self {
             format: "shapeworkshop".into(),
-            version: 8,
+            version: 9,
             units: "mm".into(),
             name: "Untitled".into(),
             parts: vec![],
@@ -194,7 +200,7 @@ fn text(s: &str, max: usize) -> bool {
 impl Project {
     pub fn validate(&self) -> Result<()> {
         ensure!(
-            self.format == "shapeworkshop" && self.version == 8 && self.units == "mm",
+            self.format == "shapeworkshop" && self.version == 9 && self.units == "mm",
             "Unsupported project format/version/units"
         );
         ensure!(text(&self.name, 100), "Invalid project name");
@@ -218,6 +224,10 @@ impl Project {
                 "Invalid or duplicate object ID"
             );
             ensure!(text(&n.name, 100), "Invalid object name");
+            ensure!(
+                (24..=192).contains(&n.segments) && n.segments.is_multiple_of(4),
+                "Curve segments must be 24–192 in multiples of four"
+            );
             ensure!(
                 n.position
                     .iter()
@@ -303,7 +313,7 @@ impl Project {
         ensure!(bytes.len() <= MAX_BYTES, "Project exceeds 32 MB");
         let mut v: serde_json::Value = serde_json::from_slice(bytes)?;
         let version = v["version"].as_u64().unwrap_or(0);
-        ensure!((1..=8).contains(&version), "Unsupported project version");
+        ensure!((1..=9).contains(&version), "Unsupported project version");
         fn migrate(v: &mut serde_json::Value, version: u64, depth: usize) -> Result<()> {
             ensure!(depth <= 8, "Group nesting limit exceeded");
             let kind = v["kind"].as_str().unwrap_or("");
@@ -342,7 +352,7 @@ impl Project {
                 migrate(n, version, 0)?;
             }
         }
-        v["version"] = 8.into();
+        v["version"] = 9.into();
         let p: Self = serde_json::from_value(v)?;
         p.validate()?;
         crate::stl::validate_project_meshes(&p)?;

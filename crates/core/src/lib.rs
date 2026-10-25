@@ -13,3 +13,5 @@ pub mod stl;
 pub mod preferences;
 
 pub mod three_mf;
+
+pub mod modeling;

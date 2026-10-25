@@ -68,3 +68,18 @@ stable release instead. Remaining acceptance: https://github.com/partiizan/tinke
 
 File shortcuts: Cmd/Ctrl-I imports STL; Cmd/Ctrl-Shift-E exports STL;
 Cmd/Ctrl-Alt-E exports 3MF. Use ACCEPTANCE.md to report an RC test.
+
+## Additional modeling tools
+
+Press M for measurements, a two-point ruler, distribution, linear/radial copies
+and curve-resolution presets. Select 3+ objects to distribute; end objects stay
+fixed. Select objects then Create copies; Additional copies excludes the originals.
+A full radial sweep closes the circle without duplicating its start.
+
+Select a group and press F2 to edit individual components, including holes, without
+ungrouping. Positions and rotations are relative to the containing group. Apply
+changes rebuilds cuts in one undo step; Cancel discards the staged changes.
+
+The ruler can use numeric XYZ points or two snapped clicks on Z=0. Press Escape to
+cancel picking. Selection dimensions and gaps use source bounding boxes before
+cuts, not exact curved-surface distances. Default curve resolution remains 96.
