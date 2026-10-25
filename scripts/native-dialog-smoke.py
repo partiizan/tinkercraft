@@ -59,11 +59,11 @@ with tempfile.TemporaryDirectory(prefix='tinkercraft-dialogs-') as directory:
         wait_for(lambda:json.loads(saved.read_text())['parts'][0]['position'][0]==41)
         # Reopen externally changed content to prove the OS picker feeds Open.
         document=json.loads(saved.read_text());document['name']='Dialog reopened';saved.write_text(json.dumps(document))
-        key('ctrl+o');pick(saved);wait_for(lambda:snapshot()['name']=='Dialog reopened')
+        key('ctrl+o');pick(saved);wait_for(lambda:'Dialog reopened' in xd('getwindowname',main))
         copy=folder/'copy.tinkercraft';key('ctrl+shift+s');pick(copy);wait_for(copy.exists)
         assert json.loads(copy.read_text())==document
         # Cancelling Save As must leave the existing project intact.
-        key('ctrl+shift+s');wait_for(dialog);key('Escape');wait_for(lambda:not dialog());assert json.loads(copy.read_text())==document
+        key('ctrl+shift+s');xd('windowfocus',wait_for(dialog));key('Escape');wait_for(lambda:not dialog());assert json.loads(copy.read_text())==document
         xd('windowfocus',main)
         stl=folder/'plate.stl';key('ctrl+shift+e');pick(stl);wait_for(stl.exists)
         three=folder/'plate.3mf';key('ctrl+alt+e');pick(three);wait_for(three.exists)
