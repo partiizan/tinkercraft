@@ -78,3 +78,16 @@ The scoped inventory and known limits are in PARITY-ACCEPTANCE.md. Manual checks
 may uncover defects or missing workflows; any such finding blocks sign-off and
 requires another candidate. Passing this checklist does not prove equivalence to
 all of Tinkercad's evolving shape catalog, generators or modeling behavior.
+
+## Published candidate and cross-platform evidence
+
+- Source commit: `82ac6b3d477512ea967504b7791aae6e283f1b68`.
+- GitHub Actions run: https://github.com/partiizan/tinkercraft/actions/runs/40326113832
+- All three native jobs passed: Apple Silicon macOS, Windows x64 and Linux x64.
+  Gates included workspace tests, strict Clippy, packaging, SVG/font export,
+  3MF validation and extracted-package native GPU screenshot verification.
+  Linux also passed the native modeling/studio/dialog regressions and reference
+  3MF reader validation.
+- Published prerelease: https://github.com/partiizan/tinkercraft/releases/tag/v0.20.0-rc.19
+- Three platform archives and their SHA-256 files are present. This is a release
+  candidate, not stable approval. All PARITY-ACCEPTANCE.md manual items remain open.
