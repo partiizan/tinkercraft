@@ -59,3 +59,19 @@ Clippy, release compilation and four packaging tests passed. Both Linux native U
 regressions passed. The new script edits a label, undoes/redoes it, searches and
 renames through the browser, then moves four independent objects together and
 undoes/redoes that transform. It is a required Linux CI gate for this candidate.
+
+## Delivered candidate
+
+Published **v0.19.0-rc.18**, application source
+`e9ced04cc045a99b73dd5d5525c64c557a85616b`:
+https://github.com/partiizan/tinkercraft/releases/tag/v0.19.0-rc.18
+
+All macOS ARM64, Windows x64 and Linux x64 native jobs, plus release publication,
+passed in run 40248368063:
+https://github.com/partiizan/tinkercraft/actions/runs/40248368063
+
+This includes the new catalog 3MF export and reference-reader validation, existing
+native regression, new modeling-controls regression, actual Linux file-dialog
+checks and extracted-package window/signature checks where applicable. Archives
+and SHA-256 checksums are on the release page. Physical hardware, interactive
+slicer/filament mapping and print acceptance remain deferred, not completed.
