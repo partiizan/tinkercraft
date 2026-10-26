@@ -107,3 +107,12 @@ to reopen them in an earlier app; schema-9 saves require this version or newer.
 0.19 reads schemas 1–10 and writes 10. New tube/torus/polygon/text shape variants
 store editable parameters. Text also records mirror flags. Existing geometry and
 default curve resolution are unchanged. Keep old project copies for older apps.
+
+## Schema 11 · workplanes and exact mesh roundtrips
+
+0.20 reads schemas 1–11 and writes 11. Workplane origin/rotation are persisted;
+legacy projects default to XY. Exact JSON float parsing preserves imported/generated
+mesh coordinates. SVG and font geometry is embedded as the existing Mesh shape,
+so the original input files are unnecessary on reopen. Group editing workspaces
+are never saved alone: apply, save, export and recovery validate the full scene.
+Retain older file copies if you need to reopen them in earlier app versions.

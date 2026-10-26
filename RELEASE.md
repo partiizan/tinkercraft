@@ -2,7 +2,7 @@
 
 ## Current release-candidate policy
 
-New main-branch builds publish as GitHub **Pre-releases**, versioned `0.19.0-rc.N`,
+New main-branch builds publish as GitHub **Pre-releases**, versioned `0.20.0-rc.N`,
 after all three native jobs pass. Manual workflow runs on main do the same;
 pull requests and failed builds do not publish. A rerun keeps the same candidate
 number so partial retries cannot mix different platform versions. Already published
@@ -135,3 +135,13 @@ STL and single-/two-filament 3MF exports produced by the downloaded RC CLI.
 See CHECKPOINT18.md, CHECKPOINT19.md and validation/checkpoint19-bambu.json.
 Manual acceptance remains tracked in issue #3; these results do not promote the
 candidate to stable.
+
+## Checkpoints 31–38 · planned feature implementation complete
+
+Custom workplanes, SVG/font extrusion, viewport group editing, point snapping,
+box selection/navigation/accessibility, GPU rendering and release hardening are
+implemented. CHECKPOINT31-38.md defines the scope and limits. No further feature
+checkpoint is scheduled in this agreed batch. PARITY-ACCEPTANCE.md lists the open
+manual tests and workflow audit. New requirements or defects from that audit can
+require additional feature/fix candidates; literal Tinkercad-wide parity is not
+asserted. Checkpoints 18–20 remain acceptance and explicit stable-release gates.

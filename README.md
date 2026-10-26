@@ -1,4 +1,4 @@
-# TinkerCraft — native Rust edition 0.19 release candidates
+# TinkerCraft — native Rust edition 0.20 release candidates
 
 A local, cross-platform solid-modeling editor. The application and modeling engine
 are written in Rust. It uses egui/eframe for the native desktop interface and the
@@ -257,3 +257,11 @@ distribution, curve resolution, tube/torus/polygon primitives, editable block
 lettering, reference alignment, independent multi-object transforms and an object
 browser. See CHECKPOINT21-25.md, CHECKPOINT26-30.md and QUICKSTART.md. Current saves
 use schema 10; older project files load. Hands-on acceptance remains open.
+
+## Remaining planned features implemented
+
+Checkpoints 31–38 add workplanes, SVG/font outline extrusion, viewport group
+editing, object snapping, box selection, GPU rendering, accessibility integration
+and hardening. F4 opens the studio; F3 enters a group and Shift-F3 applies/exits.
+See CHECKPOINT31-38.md and PARITY-ACCEPTANCE.md for the exact scope, limits and
+manual sign-off checklist. Current saves use schema 11.

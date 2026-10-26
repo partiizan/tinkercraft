@@ -128,6 +128,28 @@ pub fn render_themed(
     result: Option<&Mesh>,
     dark: bool,
 ) -> Frame {
+    render_on_plane(
+        camera,
+        width,
+        height,
+        sources,
+        selected,
+        result,
+        dark,
+        &crate::spatial::Workplane::default(),
+    )
+}
+#[allow(clippy::too_many_arguments)]
+pub fn render_on_plane(
+    camera: &Camera,
+    width: usize,
+    height: usize,
+    sources: &[SourceMesh],
+    selected: &HashSet<String>,
+    result: Option<&Mesh>,
+    dark: bool,
+    plane: &crate::spatial::Workplane,
+) -> Frame {
     let mut frame = Frame {
         width,
         height,
@@ -152,17 +174,13 @@ pub fn render_themed(
     for y in 0..height {
         for x in 0..width {
             let (o, d) = camera.ray(DVec2::new(x as f64, y as f64), width as f64, height as f64);
-            if d.z.abs() < 1e-8 {
+            let Some(p) = plane.intersect(o, d, 0.) else {
                 continue;
-            }
-            let t = (-0.04 - o.z) / d.z;
-            if t <= 0. {
-                continue;
-            }
-            let p = o + d * t;
+            };
+            let local = plane.local(p);
             let spacing = 10.;
             let near = |v: f64| ((v / spacing).round() * spacing - v).abs();
-            let line = near(p.x).min(near(p.y));
+            let line = near(local.x).min(near(local.y));
             if line < camera.units_per_pixel(height as f64) * 0.45 {
                 let i = y * width + x;
                 frame.rgba[i * 4..i * 4 + 3].copy_from_slice(if dark {

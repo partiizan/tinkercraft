@@ -47,3 +47,12 @@ No app-generated files are sent to the printer automatically.
 - [ ] Explicit stable-release approval recorded after the remaining platform/print evidence.
 
 CI success is recorded separately; do not check hardware/print boxes from CI alone.
+
+## Final feature-batch handoff
+
+The planned feature checkpoints through 38 are implemented. All hands-on checks
+remain open; use PARITY-ACCEPTANCE.md as the consolidated checklist. It includes
+real-device/assistive-technology testing, full-scene recovery, outline fidelity,
+GPU/software behavior, Bambu filament mapping, a measured physical print, and a
+side-by-side audit of required modeling workflows. Known product limits must be
+accepted explicitly for a scoped parity claim; passing tests cannot remove them.

@@ -36,10 +36,13 @@ jobs:
         run: |
           ./target/release/tinkercraft-cli export-3mf examples/multicolor-plate.tinkercraft multicolor-test.3mf
           ./target/release/tinkercraft-cli export-3mf examples/modeling-catalog.tinkercraft catalog-test.3mf
+      - name: Export SVG and font fixture
+        run: python scripts/build_outline_fixture.py
       - name: Verify 3MF package and colors
         run: |
           python scripts/validate_3mf.py multicolor-test.3mf
           python scripts/validate_3mf.py catalog-test.3mf
+          python scripts/validate_3mf.py outline-test.3mf
       - name: Install reference 3MF reader
         if: runner.os == 'Linux'
         run: python -m pip install lib3mf==2.5.0
@@ -48,6 +51,7 @@ jobs:
         run: |
           python scripts/validate_3mf.py multicolor-test.3mf --reference
           python scripts/validate_3mf.py catalog-test.3mf --reference
+          python scripts/validate_3mf.py outline-test.3mf --reference
       - name: Package native application
         run: python scripts/package.py
       - name: Verify extracted native package and window (Linux)
@@ -78,6 +82,9 @@ jobs:
       - name: Linux new modeling controls
         if: runner.os == 'Linux'
         run: python scripts/native-modeling-smoke.py
+      - name: Linux workplanes and group viewport editing
+        if: runner.os == 'Linux'
+        run: python scripts/native-studio-smoke.py
       - name: Linux native file-dialog acceptance
         if: runner.os == 'Linux'
         run: dbus-run-session -- xvfb-run -a -s "-screen 0 1440x960x24" python scripts/native-dialog-smoke.py

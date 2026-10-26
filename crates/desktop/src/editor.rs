@@ -1,5 +1,6 @@
 mod advanced_ui;
 mod modeling_ui;
+mod studio;
 use eframe::egui::{self, Color32, Pos2, Stroke, Vec2};
 use glam::{DVec2, DVec3};
 use std::{
@@ -44,6 +45,8 @@ struct Drag {
 }
 pub struct Editor {
     tools: modeling_ui::Tools,
+    studio: studio::Studio,
+    gpu: Option<std::sync::Arc<std::sync::Mutex<crate::gpu::Renderer>>>,
     smoke_report: Option<PathBuf>,
     smoke_frames: u32,
     export_requested: bool,
@@ -186,6 +189,12 @@ impl Editor {
         let p = Project::demo();
         let mut app = Self {
             tools: modeling_ui::Tools::default(),
+            studio: studio::Studio::default(),
+            gpu: cc
+                .gl
+                .as_ref()
+                .and_then(|gl| crate::gpu::Renderer::new(gl).ok())
+                .map(|r| std::sync::Arc::new(std::sync::Mutex::new(r))),
             smoke_report,
             smoke_frames: 0,
             export_requested: false,
@@ -236,6 +245,9 @@ impl Editor {
             recovery_due: None,
             recovery_status,
         };
+        app.studio.zoom = preferences.ui_scale;
+        app.studio.gpu_enabled = preferences.gpu_viewport;
+        cc.egui_ctx.set_zoom_factor(preferences.ui_scale);
         app.refresh();
         app.fit(1.4);
         app.move_snap = preferences.move_snap;
@@ -260,9 +272,22 @@ impl Editor {
                 .is_some_and(|e| e.eq_ignore_ascii_case("stl"))
             {
                 app.import_path = Some(path);
+            } else if path
+                .extension()
+                .is_some_and(|e| e.eq_ignore_ascii_case("svg"))
+            {
+                app.studio.svg_path = Some(path);
+                app.studio.open = true;
+            } else if path
+                .extension()
+                .is_some_and(|e| e.eq_ignore_ascii_case("ttf") || e.eq_ignore_ascii_case("otf"))
+            {
+                app.studio.font_path = Some(path);
+                app.studio.open = true;
             } else {
                 app.status =
-                    "Launch-file support accepts an STL path; use Open for projects".into();
+                    "Launch-file support accepts STL, SVG or outline fonts; use Open for projects"
+                        .into();
             }
         }
         app
@@ -306,6 +331,12 @@ impl Editor {
         }
     }
     fn commit(&mut self, p: Project) {
+        if let Err(e) = self.full_project(&p) {
+            self.refresh();
+            self.status = e.to_string();
+            return;
+        }
+
         match self.history.commit(p) {
             Ok(true) => self.refresh(),
             Ok(false) => {}
@@ -378,6 +409,9 @@ impl Editor {
         self.redraw = true;
     }
     fn save(&mut self, save_as: bool) -> bool {
+        if !self.finish_scopes() {
+            return false;
+        }
         self.commit_draft();
         let path = if save_as || self.file.path.is_none() {
             let suggested = format!(
@@ -424,6 +458,9 @@ impl Editor {
         }
     }
     fn request(&mut self, pending: Pending) {
+        if !self.finish_scopes() {
+            return;
+        }
         self.commit_draft();
         if self.history.dirty() {
             self.pending = Some(pending)
@@ -451,6 +488,8 @@ impl Editor {
         };
         if let Some((file, p, saved)) = opened {
             self.tools = modeling_ui::Tools::default();
+            self.studio.scopes.clear();
+            self.studio.pick_mode = 0;
             self.file = file;
             self.history = History::new(p, saved);
             self.selection.clear();
@@ -496,7 +535,7 @@ impl Editor {
         if let Some(path) = &self.recovery_path {
             let result = (|| -> anyhow::Result<()> {
                 std::fs::create_dir_all(path.parent().unwrap())?;
-                storage::atomic_write(path, &self.history.project.bytes()?)?;
+                storage::atomic_write(path, &self.full_project(&self.history.project)?.bytes()?)?;
                 Ok(())
             })();
             self.recovery_status = match result {
@@ -515,6 +554,9 @@ impl Editor {
         self.import_error.clear();
     }
     fn export(&mut self) {
+        if !self.finish_scopes() {
+            return;
+        }
         self.commit_draft();
         self.export_requested = true;
     }
@@ -705,6 +747,8 @@ impl Editor {
         preferences::Preferences {
             version: 1,
             appearance: self.appearance,
+            ui_scale: self.studio.zoom,
+            gpu_viewport: self.studio.gpu_enabled,
             move_snap: self.move_snap,
             angle_snap: self.angle_snap,
             tool: match self.tool {
@@ -789,8 +833,8 @@ impl Editor {
         });
     }
     fn left(&mut self, ctx: &egui::Context) {
-        egui::SidePanel::left("objects").exact_width(215.).show(ctx,|ui|{egui::ScrollArea::vertical().show(ui,|ui|{ui.heading("Project");let response=ui.text_edit_singleline(&mut self.name);if response.lost_focus(){self.commit_draft();}ui.horizontal(|ui|{if ui.add_enabled(self.history.can_undo(),egui::Button::new("Undo")).clicked(){self.history.undo();self.refresh();}
-if ui.add_enabled(self.history.can_redo(),egui::Button::new("Redo")).clicked(){self.history.redo();self.refresh();}});ui.separator();ui.heading("Add a shape");egui::Grid::new("palette").num_columns(2).show(ui,|ui|{for(i,kind)in["Box","Cylinder","Sphere","Cone","Wedge","Roof"].iter().enumerate(){if crate::palette::button(ui, kind).clicked(){let n=Node::primitive(kind);let id=n.id.clone();let mut p=self.history.project.clone();p.parts.push(n);self.selection=Selection::from([id]);self.commit(p);}
+        egui::SidePanel::left("objects").exact_width(215.).show(ctx,|ui|{egui::ScrollArea::vertical().show(ui,|ui|{ui.heading("Project");let response=ui.add_enabled(self.studio.scopes.is_empty(),egui::TextEdit::singleline(&mut self.name));if response.lost_focus(){self.commit_draft();}ui.horizontal(|ui|{if ui.add_enabled(self.history.can_undo(),egui::Button::new("Undo")).clicked(){self.history.undo();self.refresh();}
+if ui.add_enabled(self.history.can_redo(),egui::Button::new("Redo")).clicked(){self.history.redo();self.refresh();}});ui.separator();ui.heading("Add a shape");egui::Grid::new("palette").num_columns(2).show(ui,|ui|{for(i,kind)in["Box","Cylinder","Sphere","Cone","Wedge","Roof"].iter().enumerate(){if crate::palette::button(ui, kind).clicked(){let mut n=Node::primitive(kind);self.place_on_plane(&mut n);let id=n.id.clone();let mut p=self.history.project.clone();p.parts.push(n);self.selection=Selection::from([id]);self.commit(p);}
 if i%2==1{ui.end_row();}}});ui.separator();ui.heading(format!("Objects · {}",self.history.project.parts.len()));if ui.button("Select all").clicked(){self.selection=self.history.project.parts.iter().filter(|n|!n.hidden&&!n.has_locked()).map(|p|p.id.clone()).collect();self.draft=None;self.redraw=true;}ui.horizontal(|ui|{if ui.add_enabled(self.selection.len()>=2,egui::Button::new("Group")).clicked(){self.group_selection();}
 if ui.add_enabled(self.selection.len()==1,egui::Button::new("Ungroup")).clicked(){self.operation(|p,s|Ok(Some(operations::ungroup(p,s.iter().next().unwrap())?)));}});
  for n in self.history.project.parts.clone(){
@@ -811,7 +855,8 @@ if ui.add_enabled(self.selection.len()==1,egui::Button::new("Ungroup")).clicked(
 if ui.button("Edit group contents (F2)").clicked(){self.start_group_edit();}
 if ui.button("Object browser").clicked(){self.commit_draft();self.tools.scene=true;}
 ui.separator();ui.label("More shapes");egui::Grid::new("more_shapes").num_columns(2).show(ui,|ui|{for(i,kind)in ["Tube","Torus","Polygon","Text"].iter().enumerate(){if crate::palette::button(ui,kind).clicked(){self.add_catalog_shape(kind);}
-if i%2==1{ui.end_row();}}});});});
+if i%2==1{ui.end_row();}}});
+if ui.button("Modeling studio (F4)").clicked(){self.studio.open=true;}});});
     }
     fn inspector(&mut self, ctx: &egui::Context) {
         egui::SidePanel::right("inspector").exact_width(245.).show(ctx,|ui|{egui::ScrollArea::vertical().show(ui,|ui|{
@@ -825,7 +870,7 @@ if matches!(n.shape,Shape::Cylinder{..}|Shape::Cone{..}|Shape::Tube{..}|Shape::T
  if !n.hole { ui.separator(); ui.horizontal(|ui| { ui.label("Color"); let mut color=n.color; if ui.color_edit_button_srgb(&mut color).changed() { n.set_color_recursive(color); self.color_editing=true; } }); if matches!(n.shape,Shape::Group{..}) { ui.small("Choosing a color recolors every component; use Edit group contents to color separately."); } }
  }else{ui.heading(format!("{} selected",self.selection.len()));ui.label("Use Modeling tools (M) to transform selections together.");}
 if commit || (self.color_editing && !ctx.input(|i| i.pointer.any_down())) {self.color_editing=false;self.commit_draft();}ui.separator();ui.horizontal(|ui|{if ui.button("Duplicate").clicked(){self.operation(|p,s|Ok(Some(operations::duplicate(p,s))));}
-if ui.button("Delete").clicked(){self.operation(|p,s|{p.parts.retain(|n|!s.contains(&n.id));Ok(None)});}});if ui.button("Drop to workplane").clicked(){self.operation(|p,s|{operations::drop_to_plane(p,s)?;Ok(None)});}ui.separator();ui.heading("Align selection");ui.small("Combined source bounds, before cuts");for axis in 0..3{ui.horizontal(|ui|{ui.label(["X","Y","Z"][axis]);for(mode,label)in[(-1,"Min"),(0,"Center"),(1,"Max")]{if ui.add_enabled(self.selection.len()>1,egui::Button::new(label)).clicked(){self.operation(|p,s|{operations::align(p,s,axis,mode)?;Ok(None)});}}});}ui.separator();ui.heading("Mirror selection");ui.small("In place about the selection center");ui.horizontal(|ui|{for(axis,label)in["X","Y","Z"].iter().enumerate(){if ui.button(*label).clicked(){self.operation(|p,s|{operations::mirror(p,s,axis)?;Ok(None)});}}});ui.separator();ui.small("Z up · millimeters\nShift-click selects multiple objects. Ungrouping exposes holes to sibling scope. Hole groups must be made Solid first.");});});});
+if ui.button("Delete").clicked(){self.operation(|p,s|{p.parts.retain(|n|!s.contains(&n.id));Ok(None)});}});if ui.button("Drop to workplane").clicked(){self.operation(|p,s|{tinkercraft_core::spatial::drop_to_workplane(p,s)?;Ok(None)});}ui.separator();ui.heading("Align selection");ui.small("Combined source bounds, before cuts");for axis in 0..3{ui.horizontal(|ui|{ui.label(["X","Y","Z"][axis]);for(mode,label)in[(-1,"Min"),(0,"Center"),(1,"Max")]{if ui.add_enabled(self.selection.len()>1,egui::Button::new(label)).clicked(){self.operation(|p,s|{operations::align(p,s,axis,mode)?;Ok(None)});}}});}ui.separator();ui.heading("Mirror selection");ui.small("In place about the selection center");ui.horizontal(|ui|{for(axis,label)in["X","Y","Z"].iter().enumerate(){if ui.button(*label).clicked(){self.operation(|p,s|{operations::mirror(p,s,axis)?;Ok(None)});}}});ui.separator();ui.small("Z up · millimeters\nShift-click selects multiple objects. Ungrouping exposes holes to sibling scope. Hole groups must be made Solid first.");});});});
     }
     fn shortcuts(&mut self, ctx: &egui::Context) {
         if self.drag.is_some() {
@@ -862,6 +907,28 @@ if ui.button("Delete").clicked(){self.operation(|p,s|{p.parts.retain(|n|!s.conta
         if ctx.wants_keyboard_input() {
             return;
         }
+        if ctx.input_mut(|i| i.consume_key(egui::Modifiers::NONE, egui::Key::F1)) {
+            self.studio.help = !self.studio.help;
+        }
+        if ctx.input_mut(|i| i.consume_key(egui::Modifiers::NONE, egui::Key::F4)) {
+            self.studio.open = !self.studio.open;
+        }
+        if ctx.input_mut(|i| i.consume_key(egui::Modifiers::SHIFT, egui::Key::F3)) {
+            self.leave_group(true);
+        } else if ctx.input_mut(|i| i.consume_key(egui::Modifiers::NONE, egui::Key::F3)) {
+            self.enter_group();
+        }
+        for (key, view) in [
+            (egui::Key::Num1, "Top"),
+            (egui::Key::Num2, "Front"),
+            (egui::Key::Num3, "Right"),
+            (egui::Key::Num4, "Iso"),
+        ] {
+            if ctx.input_mut(|i| i.consume_key(egui::Modifiers::NONE, key)) {
+                self.camera.view(view);
+                self.redraw = true;
+            }
+        }
         if ctx.input_mut(|i| i.consume_key(egui::Modifiers::NONE, egui::Key::M)) {
             self.commit_draft();
             self.tools.open = !self.tools.open;
@@ -871,6 +938,9 @@ if ui.button("Delete").clicked(){self.operation(|p,s|{p.parts.retain(|n|!s.conta
         }
         if ctx.input(|i| i.key_pressed(egui::Key::Escape)) {
             self.tools.picking = 0;
+            self.studio.pick_mode = 0;
+            self.studio.anchor = None;
+            self.studio.marquee = None;
         }
 
         if ctx.input_mut(|i| i.consume_key(egui::Modifiers { shift: true, ..cmd }, egui::Key::G)) {
@@ -1030,7 +1100,7 @@ if ui.button("Delete").clicked(){self.operation(|p,s|{p.parts.retain(|n|!s.conta
             let (rect, response) = ui.allocate_exact_size(available, egui::Sense::click_and_drag());
             let width = rect.width().clamp(1., 900.) as usize;
             let height = ((width as f32 * rect.height() / rect.width()).clamp(1., 900.)) as usize;
-            if self
+            if (!self.studio.gpu_enabled || self.gpu.is_none()) && self
                 .frame
                 .as_ref()
                 .is_none_or(|f| f.width != width || f.height != height)
@@ -1050,7 +1120,7 @@ if ui.button("Delete").clicked(){self.operation(|p,s|{p.parts.retain(|n|!s.conta
                 )
             };
             let single =
-                if self.selection.len() == 1 && !self.preview && self.ready == self.revision && self.tools.picking==0 {
+                if self.selection.len() == 1 && !self.preview && self.ready == self.revision && self.tools.picking==0 && self.studio.pick_mode==0 && !ctx.input(|i|i.modifiers.shift) {
                     if self.drag.is_some() {
                         self.draft.clone()
                     } else {
@@ -1081,6 +1151,7 @@ if ui.button("Delete").clicked(){self.operation(|p,s|{p.parts.retain(|n|!s.conta
                     }
                 }
             }
+            if response.drag_started_by(egui::PointerButton::Primary)&&ctx.input(|i|i.modifiers.shift){self.studio.marquee=ctx.input(|i|i.pointer.press_origin());}
             if response.drag_started_by(egui::PointerButton::Primary)
                 && let Some(start) = ctx.input(|i| i.pointer.press_origin())
                     && let Some(n) = &single {
@@ -1149,7 +1220,7 @@ if ui.button("Delete").clicked(){self.operation(|p,s|{p.parts.retain(|n|!s.conta
                     self.commit_draft();
                 }
             } else {
-                if response.dragged_by(egui::PointerButton::Primary) {
+                if response.dragged_by(egui::PointerButton::Primary) && self.studio.marquee.is_none() && self.studio.pick_mode==0 {
                     let delta = ctx.input(|i| i.pointer.delta());
                     self.camera.yaw -= delta.x as f64 * 0.008;
                     self.camera.pitch =
@@ -1163,21 +1234,11 @@ if ui.button("Delete").clicked(){self.operation(|p,s|{p.parts.retain(|n|!s.conta
                         * self.camera.units_per_pixel(rect.height() as f64);
                     self.redraw = true;
                 }
-                if response.clicked()
-                    && let (Some(pos), Some(frame)) = (response.interact_pointer_pos(), &self.frame)
-                    {
-                        let q = local(pos);
-                        if self.tools.picking>0 {
-                            let (origin,direction)=self.camera.ray(q,width as f64,height as f64);
-                            if let Some(point)=tinkercraft_core::modeling::workplane_point(origin,direction,self.move_snap){
-                                self.tools.ruler[(self.tools.picking-1) as usize]=point.to_array();
-                                self.tools.picking=if self.tools.picking==1{2}else{0};
-                            }else{self.status="Workplane is edge-on or out of range; choose Top view".into();}
-                        }else if let Some(id) = frame.pick(q.x.max(0.) as usize, q.y.max(0.) as usize) {
-                            self.select(id, ctx.input(|i| i.modifiers.shift));
-                        }
-                    }
+                if response.clicked() && let Some(pos)=response.interact_pointer_pos(){self.spatial_click(local(pos),width,height,ctx.input(|i|i.modifiers.shift));}
             }
+            if let Some(start)=self.studio.marquee
+                && let Some(end)=ctx.input(|i|i.pointer.interact_pos())
+                    && response.drag_stopped(){let ids=tinkercraft_core::spatial::box_select(&self.history.project,&self.camera,width,height,local(start),local(end));self.commit_draft();if ctx.input(|i|i.modifiers.alt){self.selection.retain(|id|!ids.contains(id));}else{self.selection.extend(ids);}self.draft=None;self.redraw=true;self.studio.marquee=None;}
             if response.hovered() && self.drag.is_none() {
                 let scroll = ctx.input(|i| i.smooth_scroll_delta.y);
                 if scroll != 0. {
@@ -1186,8 +1247,8 @@ if ui.button("Delete").clicked(){self.operation(|p,s|{p.parts.retain(|n|!s.conta
                     self.redraw = true;
                 }
             }
-            if self.redraw {
-                let frame = viewport::render_themed(
+            if self.redraw && (!self.studio.gpu_enabled || self.gpu.is_none() || self.smoke_report.is_some()) {
+                let frame = viewport::render_on_plane(
                     &self.camera,
                     width,
                     height,
@@ -1195,6 +1256,7 @@ if ui.button("Delete").clicked(){self.operation(|p,s|{p.parts.retain(|n|!s.conta
                     &self.selection,
                     None,
                     self.viewport_dark,
+                    &self.history.project.workplane,
                 );
                 let image = egui::ColorImage::from_rgba_unmultiplied([width, height], &frame.rgba);
                 if let Some(texture) = &mut self.texture {
@@ -1206,7 +1268,7 @@ if ui.button("Delete").clicked(){self.operation(|p,s|{p.parts.retain(|n|!s.conta
                 self.frame = Some(frame);
                 self.redraw = false;
             }
-            if let Some(texture) = &self.texture {
+            if (!self.studio.gpu_enabled || self.gpu.is_none()) && let Some(texture) = &self.texture {
                 ui.painter().image(
                     texture.id(),
                     rect,
@@ -1214,6 +1276,15 @@ if ui.button("Delete").clicked(){self.operation(|p,s|{p.parts.retain(|n|!s.conta
                     Color32::WHITE,
                 );
             }
+            if self.studio.gpu_enabled && let Some(gpu)=&self.gpu {
+                let mut ids:Vec<_>=self.selection.iter().collect();ids.sort();
+                let draft=self.draft.as_ref().filter(|_|self.drag.is_some()).map(|n|(n.position,n.rotation,n.size(),n.scale()));
+                let key=format!("{}:{}:{}:{}:{:?}:{:?}",self.revision,self.ready,self.preview,self.viewport_dark,ids,draft);
+                gpu.lock().unwrap().prepare(key,if self.preview{&self.result_sources}else{&self.sources},&self.selection,&self.history.project.workplane,self.viewport_dark);
+                ui.painter().rect_filled(rect,0.,if self.viewport_dark{Color32::from_rgb(30,35,39)}else{Color32::from_rgb(230,235,237)});
+                ui.painter().add(crate::gpu::Renderer::callback(gpu.clone(),&self.camera,rect));self.redraw=false;
+            }
+            if let Some(start)=self.studio.marquee && let Some(end)=ctx.input(|i|i.pointer.interact_pos()){ui.painter().rect_stroke(egui::Rect::from_two_pos(start,end),0.,Stroke::new(1_f32,Color32::LIGHT_BLUE),egui::StrokeKind::Inside);}
             if self.tools.show_ruler {
                 let a=DVec3::from(self.tools.ruler[0]);let b=DVec3::from(self.tools.ruler[1]);
                 if let (Some(pa),Some(pb))=(self.camera.project(a,width,height),self.camera.project(b,width,height)){
@@ -1254,7 +1325,7 @@ if ui.button("Delete").clicked(){self.operation(|p,s|{p.parts.retain(|n|!s.conta
                 if self.preview {
                     "BOOLEAN RESULT"
                 } else {
-                    "XY workplane · 10 mm grid · Z up"
+                    if self.history.project.workplane==tinkercraft_core::spatial::Workplane::default(){"XY workplane · 10 mm grid · Z up"}else{"Custom workplane · 10 mm grid · world Z up"}
                 },
                 egui::FontId::proportional(12.),
                 if self.viewport_dark { Color32::from_gray(205) } else { Color32::from_gray(75) },
@@ -1376,6 +1447,7 @@ impl eframe::App for Editor {
         self.preferences_modal(ctx);
         self.modeling_tools(ctx);
         self.scene_browser(ctx);
+        self.studio_ui(ctx);
         if self.export_requested && self.ready == self.revision && self.pending.is_none() {
             self.write_export(ctx);
         }
@@ -1420,13 +1492,35 @@ impl eframe::App for Editor {
                 let colors: std::collections::HashSet<_> =
                     image.pixels.iter().map(|p| p.to_array()).collect();
                 assert!(
-                    object_pixels > 100 && colors.len() > 32 && image.width() >= 1000,
+                    object_pixels > 100
+                        && colors.len() > 32
+                        && image.width() >= 1000
+                        && self.gpu.is_some(),
                     "Native window did not contain a rendered model"
+                );
+                let visible_model_pixels = image
+                    .pixels
+                    .iter()
+                    .enumerate()
+                    .filter(|(i, c)| {
+                        let x = i % image.width();
+                        let y = i / image.width();
+                        x > image.width() / 4
+                            && x < image.width() * 3 / 4
+                            && y > image.height() / 4
+                            && y < image.height() * 4 / 5
+                            && c.g() as i32 > c.r() as i32 + 15
+                            && c.b() as i32 > c.r() as i32 + 15
+                    })
+                    .count();
+                assert!(
+                    visible_model_pixels > 1000,
+                    "GPU framebuffer did not contain the expected model"
                 );
                 let report = serde_json::json!({
                     "version": env!("CARGO_PKG_VERSION"), "native_window": "passed",
                     "screenshot_size": image.size, "distinct_colors": colors.len(),
-                    "model_pixels": object_pixels, "frames": self.smoke_frames,
+                    "model_pixels": object_pixels, "gpu_model_pixels":visible_model_pixels, "frames": self.smoke_frames, "gpu_viewport":self.gpu.is_some()&&self.studio.gpu_enabled,
                 });
                 std::fs::write(path, serde_json::to_vec_pretty(&report).unwrap())
                     .expect("Write smoke report");
@@ -1479,6 +1573,10 @@ impl eframe::App for Editor {
         }
     }
     fn on_exit(&mut self, _gl: Option<&eframe::glow::Context>) {
+        if let (Some(gl), Some(gpu)) = (_gl, &self.gpu) {
+            gpu.lock().unwrap().destroy(gl);
+        }
+
         self.save_preferences();
         if !self.allow_close {
             self.flush_recovery();

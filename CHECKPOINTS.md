@@ -127,3 +127,13 @@ in the 0.19 RC series. See CHECKPOINT26-30.md for limits and validation. More
 complete workplanes, SVG/custom-font extrusion, viewport child manipulation, GPU
 rendering and further interaction polish remain future modeling work. Hands-on
 acceptance remains deferred until feature work is finished.
+
+## Checkpoints 31–38 · planned feature implementation complete
+
+Custom workplanes, SVG/font extrusion, viewport group editing, point snapping,
+box selection/navigation/accessibility, GPU rendering and release hardening are
+implemented. CHECKPOINT31-38.md defines the scope and limits. No further feature
+checkpoint is scheduled in this agreed batch. PARITY-ACCEPTANCE.md lists the open
+manual tests and workflow audit. New requirements or defects from that audit can
+require additional feature/fix candidates; literal Tinkercad-wide parity is not
+asserted. Checkpoints 18–20 remain acceptance and explicit stable-release gates.

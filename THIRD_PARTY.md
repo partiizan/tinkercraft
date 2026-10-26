@@ -23,3 +23,16 @@ Transitive dependencies retain their upstream licenses. Cargo downloads their
 sources and license files into its registry cache. Review dependency-licenses.csv
 and bundled dependency-licenses/ when distributing compiled artifacts. The
 application uses eframe's bundled default fonts, under their upstream licenses.
+
+Additional outline/accessibility capabilities in 0.20:
+
+- usvg 0.45.1 — Apache-2.0 OR MIT; SVG parsing and path/stroke conversion.
+- ttf-parser 0.25.1 — MIT OR Apache-2.0; local font outlines.
+- roxmltree 0.20.0 — MIT OR Apache-2.0; bounded XML preflight.
+- clipper2-rust 1.2.0 — BSL-1.0; winding-rule outline unions.
+- AccessKit and OS adapters — MIT/Apache-2.0 as specified per crate in the inventory.
+
+The tests use epaint's existing bundled fonts. User-chosen fonts are converted to
+geometry, not copied into projects. Dependency license texts are included; AccessKit
+and atspi-proxies workspace licenses were obtained from their upstream repositories
+where the published crate did not include its workspace license file.

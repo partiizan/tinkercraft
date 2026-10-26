@@ -223,9 +223,9 @@ impl Editor {
                 let delta=DVec3::from(self.tools.ruler[1])-DVec3::from(self.tools.ruler[0]);
                 ui.label(format!("Distance {:.3} mm · ΔX {:.3}  ΔY {:.3}  ΔZ {:.3}",delta.length(),delta.x,delta.y,delta.z));
                 ui.checkbox(&mut self.tools.show_ruler,"Show ruler in viewport");
-                ui.horizontal(|ui|{if ui.button("Pick two points on Z=0").clicked(){self.tools.picking=1;self.tools.show_ruler=true;}
+                ui.horizontal(|ui|{if ui.button("Pick two points on workplane").clicked(){self.tools.picking=1;self.tools.show_ruler=true;}
                     if ui.button("Clear ruler").clicked(){self.tools.picking=0;self.tools.show_ruler=false;}});
-                if self.tools.picking>0{ui.label(format!("Click point {} on the workplane; movement snap applies. Use Top view if edge-on.",self.tools.picking));}
+                if self.tools.picking>0{ui.label(format!("Click point {} on the active workplane; movement snap applies. Use Top view if edge-on.",self.tools.picking));}
                 ui.separator();ui.heading("Distribute selection");
                 ui.horizontal(|ui|{for (axis,label) in ["X","Y","Z"].iter().enumerate(){ui.selectable_value(&mut self.tools.axis,axis,*label);}});
                 ui.checkbox(&mut self.tools.gaps,"Equal bounding-box gaps (otherwise equal centers)");

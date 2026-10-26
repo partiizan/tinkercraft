@@ -17,3 +17,6 @@ pub mod three_mf;
 pub mod modeling;
 
 pub mod catalog;
+
+pub mod extrusion;
+pub mod spatial;

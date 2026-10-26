@@ -224,15 +224,18 @@ pub struct Project {
     pub units: String,
     pub name: String,
     pub parts: Vec<Node>,
+    #[serde(default)]
+    pub workplane: crate::spatial::Workplane,
 }
 impl Default for Project {
     fn default() -> Self {
         Self {
             format: "shapeworkshop".into(),
-            version: 10,
+            version: 11,
             units: "mm".into(),
             name: "Untitled".into(),
             parts: vec![],
+            workplane: crate::spatial::Workplane::default(),
         }
     }
 }
@@ -242,9 +245,10 @@ fn text(s: &str, max: usize) -> bool {
 impl Project {
     pub fn validate(&self) -> Result<()> {
         ensure!(
-            self.format == "shapeworkshop" && self.version == 10 && self.units == "mm",
+            self.format == "shapeworkshop" && self.version == 11 && self.units == "mm",
             "Unsupported project format/version/units"
         );
+        self.workplane.validate()?;
         ensure!(text(&self.name, 100), "Invalid project name");
         let mut ids = HashSet::new();
         let mut count = 0;
@@ -382,7 +386,13 @@ impl Project {
         ensure!(bytes.len() <= MAX_BYTES, "Project exceeds 32 MB");
         let mut v: serde_json::Value = serde_json::from_slice(bytes)?;
         let version = v["version"].as_u64().unwrap_or(0);
-        ensure!((1..=10).contains(&version), "Unsupported project version");
+        ensure!((1..=11).contains(&version), "Unsupported project version");
+        ensure!(
+            version >= 11
+                || v.get("workplane").is_none()
+                || v["workplane"] == serde_json::to_value(crate::spatial::Workplane::default())?,
+            "Custom workplanes require schema 11"
+        );
         fn migrate(v: &mut serde_json::Value, version: u64, depth: usize) -> Result<()> {
             ensure!(depth <= 8, "Group nesting limit exceeded");
             let kind = v["kind"].as_str().unwrap_or("");
@@ -425,7 +435,7 @@ impl Project {
                 migrate(n, version, 0)?;
             }
         }
-        v["version"] = 10.into();
+        v["version"] = 11.into();
         let p: Self = serde_json::from_value(v)?;
         p.validate()?;
         crate::stl::validate_project_meshes(&p)?;

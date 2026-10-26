@@ -69,7 +69,7 @@ def main():
                 if result.returncode:
                     raise RuntimeError(report.read_text() if report.exists() else f'Native app exited {result.returncode} without a report')
                 evidence=json.loads(report.read_text())
-                if evidence.get('native_window')!='passed' or evidence.get('version')!=m['version']:raise ValueError('Packaged native window failed')
+                if evidence.get('native_window')!='passed' or evidence.get('version')!=m['version'] or evidence.get('gpu_viewport') is not True or evidence.get('gpu_model_pixels',0)<=1000:raise ValueError('Packaged native window failed')
                 evidence['test_driver']='Mesa llvmpipe' if driver else 'platform default'
                 print(json.dumps(evidence))
     print(json.dumps({'package':'verified','version':m['version'],'platform':m['platform'],'arch':m['arch'],'files':len(m['files']),'native_cli_run':args.run}))

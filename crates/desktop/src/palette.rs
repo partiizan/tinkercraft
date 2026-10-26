@@ -98,5 +98,12 @@ pub fn button(ui: &mut egui::Ui, kind: &str) -> egui::Response {
             polygon(&[(0., 0.), (11., -5.), (11., 6.), (0., 11.)], dark);
         }
     }
+    response.widget_info(|| {
+        egui::WidgetInfo::labeled(
+            egui::WidgetType::Button,
+            ui.is_enabled(),
+            format!("Add {kind}"),
+        )
+    });
     response.on_hover_text(format!("Add {kind}"))
 }

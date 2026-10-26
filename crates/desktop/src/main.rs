@@ -1,5 +1,6 @@
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 mod editor;
+mod gpu;
 mod palette;
 use eframe::egui;
 fn main() -> eframe::Result {
@@ -15,6 +16,7 @@ fn main() -> eframe::Result {
         None
     };
     let options = eframe::NativeOptions {
+        depth_buffer: 24,
         viewport: egui::ViewportBuilder::default()
             .with_title("TinkerCraft")
             .with_icon(egui::IconData {

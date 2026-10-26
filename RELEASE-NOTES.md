@@ -1,3 +1,25 @@
+This candidate completes the eight planned remaining modeling checkpoints (31–38):
+custom workplanes, SVG extrusion, font-outline lettering, viewport editing inside
+nested groups, point snapping, richer selection/navigation/accessibility, GPU
+rendering and release hardening.
+
+F4 opens Modeling studio. F3 enters a selected group; Shift-F3 applies and exits.
+F1 opens the keyboard reference. Shift-drag adds a box selection; Alt-Shift-drag
+removes it. 1/2/3/4 select top/front/right/isometric views. Save and export apply
+active group workspaces; recovery always retains the full project.
+
+SVG/font conversion runs in the background and embeds generated geometry in the
+saved project. Custom planes persist in schema 11; schemas 1–10 still load. GPU
+rendering caches geometry across camera movement, with a selectable software
+fallback. UI scale and renderer preference persist. Native accessibility support
+is enabled. Exact float parsing preserves generated meshes across save/reopen.
+
+Read PARITY-ACCEPTANCE.md before sign-off. These checkpoints complete the planned
+scope; full parity is still unconfirmed. Imports and scene complexity have explicit
+limits, including plain SVG geometry and Latin font lettering. Hands-on hardware,
+assistive technology, slicer/filament mapping and physical printing remain open.
+This is a release candidate, not an automatically promoted stable release.
+
 This candidate delivers modeling checkpoints 26–30:
 
 - Tube, torus and regular polygon-prism shapes, with editable bore ratio or sides.
@@ -47,7 +69,7 @@ slicing. See CHECKPOINT18.md, CHECKPOINT19.md and ACCEPTANCE.md for evidence and
 remaining hands-on checks; neither checkpoint is fully signed off yet.
 
 This is a **release candidate**, not a stable release. Each successful main-branch
-build receives a unique `0.19.0-rc.N` version; the tag and downloads identify the
+build receives a unique `0.20.0-rc.N` version; the tag and downloads identify the
 exact candidate. The number is the workflow run number, not a completed-checkpoint
 count. Rerunning a workflow retains its candidate identity across all platforms.
 

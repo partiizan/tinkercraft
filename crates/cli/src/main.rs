@@ -37,7 +37,7 @@ fn main() -> Result<()> {
     }
     let Some(command) = args.get(1) else {
         println!(
-            "TinkerCraft CLI\n  --version\n  self-test\n  import INPUT.stl OUTPUT.tinkercraft [mm|in|cm]\n  demo OUTPUT.tinkercraft\n  validate INPUT.tinkercraft\n  export INPUT.tinkercraft OUTPUT.stl\n  export-3mf INPUT.tinkercraft OUTPUT.3mf\n  render INPUT.tinkercraft OUTPUT.ppm"
+            "TinkerCraft CLI\n  --version\n  self-test\n  import INPUT.stl OUTPUT.tinkercraft [mm|in|cm]\n  import-svg INPUT.svg OUTPUT.tinkercraft WIDTH_MM DEPTH_MM\n  font-text FONT.ttf OUTPUT.tinkercraft WIDTH_MM DEPTH_MM TEXT\n  demo OUTPUT.tinkercraft\n  validate INPUT.tinkercraft\n  export INPUT.tinkercraft OUTPUT.stl\n  export-3mf INPUT.tinkercraft OUTPUT.3mf\n  render INPUT.tinkercraft OUTPUT.ppm"
         );
         return Ok(());
     };
@@ -65,6 +65,38 @@ fn main() -> Result<()> {
             ..Project::default()
         };
         storage::atomic_write(&PathBuf::from(output), &p.bytes()?)?;
+        return Ok(());
+    }
+    if command == "import-svg" || command == "font-text" {
+        let output = args.get(3).context("Missing output project path")?;
+        let width: f64 = args.get(4).context("Missing width mm")?.parse()?;
+        let depth: f64 = args.get(5).context("Missing extrusion mm")?.parse()?;
+        let bytes = tinkercraft_core::extrusion::read_bounded(
+            &PathBuf::from(input),
+            if command == "import-svg" {
+                1_000_000
+            } else {
+                20_000_000
+            },
+        )?;
+        let n = if command == "import-svg" {
+            tinkercraft_core::extrusion::svg(&bytes, width, depth, "SVG outline")?
+        } else {
+            tinkercraft_core::extrusion::font(
+                &bytes,
+                args.get(6).context("Missing lettering text")?,
+                width,
+                depth,
+            )?
+        };
+        storage::atomic_write(
+            &PathBuf::from(output),
+            &Project {
+                parts: vec![n],
+                ..Project::default()
+            }
+            .bytes()?,
+        )?;
         return Ok(());
     }
     let p = Project::parse(&storage::read(&PathBuf::from(input))?)?;

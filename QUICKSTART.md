@@ -101,3 +101,32 @@ each edge and an offset. The reference stays fixed, including when locked.
 Open Object browser from the left panel to search names/types/nested components,
 inspect group contents, select matches, invert selection or rename objects. Batch
 names receive numbered suffixes. Use F2 on a selected group to edit components.
+
+## Modeling studio · F4
+
+Use a numeric origin/rotation or Pick a face for a custom workplane. Apply plane
+sets it, Reset XY restores the original plane, and Look at workplane faces its
+normal. New shapes, drop-to-workplane and ruler picks use the active plane; object
+coordinates remain world XYZ. The plane is stored with the project.
+
+For object snapping, select objects, choose Pick source, then target, click the
+selection, then another object's surface. Toggle triangle-vertex snapping if
+needed. Escape cancels. Shift-drag adds objects by their projected bounds centers;
+Alt-Shift-drag removes them. 1/2/3/4 choose top/front/right/isometric camera views.
+
+F3 enters a selected group in a local-coordinate workspace. Use regular handles
+or numeric controls on children; F3 again enters a nested group. Shift-F3 applies
+and exits. Cancel group edits discards the active workspace. Save/export apply all
+active workspaces first. Recovery stores the full scene, even while inside a group.
+
+Choose SVG or TTF/OTF in the studio, set width/depth, then generate. Review the
+reported dimensions and Add generated mesh. Plain SVG filled paths, strokes and
+cutouts are supported; convert SVG text/clips/effects to paths first. Font lettering
+supports Latin glyph outlines; regenerate to change font/text. The resulting meshes
+are self-contained and support the normal solid/hole/color/group/export workflows.
+You can also launch TinkerCraft with an SVG or font path to open this import panel.
+
+The studio has GPU/software rendering and interface-scale controls. F1 opens the
+keyboard reference. Normal controls support Tab/Shift-Tab and Space/Enter, with
+native accessibility integration. Use PARITY-ACCEPTANCE.md for remaining manual
+checks before stable-release or scoped-parity sign-off.

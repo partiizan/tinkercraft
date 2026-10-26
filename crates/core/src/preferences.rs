@@ -16,6 +16,8 @@ pub enum Appearance {
 pub struct Preferences {
     pub version: u32,
     pub appearance: Appearance,
+    pub ui_scale: f32,
+    pub gpu_viewport: bool,
     pub move_snap: f64,
     pub angle_snap: f64,
     pub tool: u8,
@@ -32,6 +34,8 @@ impl Default for Preferences {
         Self {
             version: 1,
             appearance: Appearance::System,
+            ui_scale: 1.,
+            gpu_viewport: true,
             move_snap: 1.,
             angle_snap: 15.,
             tool: 0,
@@ -46,6 +50,10 @@ impl Default for Preferences {
 }
 impl Preferences {
     pub fn validate(&self) -> Result<()> {
+        ensure!(
+            self.ui_scale.is_finite() && (0.8..=1.6).contains(&self.ui_scale),
+            "Invalid interface scale"
+        );
         ensure!(
             self.version == 1 && self.tool <= 2,
             "Unsupported preferences version/tool"

@@ -86,6 +86,7 @@ impl Editor {
                 ];
             }
         }
+        self.place_on_plane(&mut n);
         let id = n.id.clone();
         let mut p = self.history.project.clone();
         p.parts.push(n);
