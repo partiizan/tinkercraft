@@ -223,3 +223,122 @@ pub fn edit_group(p: &mut Project, original: &Node, edited: Node) -> Result<()> 
     *p = next;
     Ok(())
 }
+
+/// Align selected objects to one stationary reference, using world source bounds.
+/// The reference may be locked; only the moving objects must be editable.
+pub fn align_reference(
+    p: &mut Project,
+    ids: &Selection,
+    reference: &str,
+    axis: usize,
+    source_mode: i32,
+    target_mode: i32,
+    offset: f64,
+) -> Result<()> {
+    ensure!(
+        axis < 3
+            && (-1..=1).contains(&source_mode)
+            && (-1..=1).contains(&target_mode)
+            && offset.is_finite(),
+        "Invalid reference alignment"
+    );
+    let anchor = p
+        .parts
+        .iter()
+        .find(|n| n.id == reference && !n.hidden)
+        .ok_or_else(|| anyhow::anyhow!("Choose a visible reference object"))?;
+    let a = bounds(anchor);
+    let coordinate = |b: Bounds, mode: i32| {
+        if mode < 0 {
+            b.min[axis]
+        } else if mode > 0 {
+            b.max[axis]
+        } else {
+            b.center()[axis]
+        }
+    };
+    let target = coordinate(a, target_mode) + offset;
+    let moving: Selection = ids
+        .iter()
+        .filter(|id| id.as_str() != reference)
+        .cloned()
+        .collect();
+    let indices = selected(p, &moving)?;
+    let mut next = p.clone();
+    for i in indices {
+        next.parts[i].position[axis] += target - coordinate(bounds(&p.parts[i]), source_mode);
+    }
+    next.validate()?;
+    operations::protect_locked(p, &next)?;
+    *p = next;
+    Ok(())
+}
+/// Uniformly scale and rotate a selection around a world pivot, then translate.
+/// Nodes remain independent, and group children retain local transforms.
+pub fn transform_selection(
+    p: &mut Project,
+    ids: &Selection,
+    pivot: [f64; 3],
+    translation: [f64; 3],
+    rotation: [f64; 3],
+    scale: f64,
+) -> Result<()> {
+    let indices = selected(p, ids)?;
+    ensure!(
+        pivot
+            .iter()
+            .chain(&translation)
+            .chain(&rotation)
+            .all(|v| v.is_finite())
+            && rotation.iter().all(|v| v.abs() <= 3600.)
+            && scale.is_finite()
+            && (0.00001..=100000.).contains(&scale),
+        "Invalid selection transform"
+    );
+    let center = DVec3::from(pivot);
+    let q = crate::document::quaternion(rotation);
+    let mut next = p.clone();
+    for i in indices {
+        let n = &mut next.parts[i];
+        n.position =
+            (center + q * ((DVec3::from(n.position) - center) * scale) + DVec3::from(translation))
+                .to_array();
+        n.rotation = crate::document::rotation(q * crate::document::quaternion(n.rotation));
+        if let Shape::Group { scale: s, .. } = &mut n.shape {
+            *s *= scale;
+        } else {
+            let size = n.size().unwrap();
+            for (axis, v) in size.iter().enumerate() {
+                n.set_dimension(axis, v * scale);
+            }
+        }
+    }
+    next.validate()?;
+    operations::protect_locked(p, &next)?;
+    *p = next;
+    Ok(())
+}
+/// Search includes nested component names, but selection remains at top level.
+pub fn matches_query(n: &Node, query: &str) -> bool {
+    let q = query.trim().to_lowercase();
+    n.name.to_lowercase().contains(&q)
+        || n.kind().to_lowercase().contains(&q)
+        || matches!(&n.shape,Shape::Group{children,..} if children.iter().any(|c|matches_query(c,&q)))
+}
+pub fn rename_selection(p: &mut Project, ids: &Selection, prefix: &str) -> Result<()> {
+    let indices = selected(p, ids)?;
+    let mut next = p.clone();
+    let multiple = indices.len() > 1;
+    for (order, i) in indices.into_iter().enumerate() {
+        next.parts[i].name = if multiple {
+            format!("{} {}", prefix.trim(), order + 1)
+        } else {
+            prefix.trim().to_string()
+        };
+    }
+    ensure!(!prefix.trim().is_empty(), "Enter a name");
+    next.validate()?;
+    operations::protect_locked(p, &next)?;
+    *p = next;
+    Ok(())
+}

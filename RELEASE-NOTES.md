@@ -1,3 +1,29 @@
+This candidate delivers modeling checkpoints 26–30:
+
+- Tube, torus and regular polygon-prism shapes, with editable bore ratio or sides.
+- Editable block-text labels that can be solids or engraving holes, including inside
+  groups. Supports A–Z, digits, spaces and - . _ +, up to 24 characters per label.
+- Alignment to a stationary reference object, with independently chosen source and
+  target bounds edges and an offset. Locked references can remain fixed.
+- Move, rotate and uniformly scale selected objects together without grouping them.
+- Searchable object browser, nested component inspection, bulk selection and rename.
+
+Open Modeling tools (M) for reference alignment and selection transforms. More
+shapes and Object browser are in the left panel. The bundled modeling-catalog
+example demonstrates raised and recessed lettering and all three new shapes.
+
+Projects now save as schema 10. Schemas 1–9 still load; keep older project copies
+if you need to open them with an older TinkerCraft version. No new dependencies.
+Block lettering is a built-in font style; arbitrary fonts and SVG import remain
+future work. Polygon diameter is its vertex-circle diameter. Reference alignment
+uses source bounding boxes, not exact surface contact. Selection scaling is uniform.
+
+This is a release candidate. Hands-on OS, interactive slicer and print acceptance
+remain deferred at the user's request; stable promotion still needs an explicit
+release decision. See CHECKPOINT26-30.md and issue #3.
+
+Previous candidate features and release policy follow.
+
 This candidate adds five modeling checkpoints (21–25): measurements and a
 workplane ruler, numeric editing of nested group components, equal-center/equal-gap
 distribution, linear/radial repeated copies, and adjustable curve resolution.
@@ -21,7 +47,7 @@ slicing. See CHECKPOINT18.md, CHECKPOINT19.md and ACCEPTANCE.md for evidence and
 remaining hands-on checks; neither checkpoint is fully signed off yet.
 
 This is a **release candidate**, not a stable release. Each successful main-branch
-build receives a unique `0.18.0-rc.N` version; the tag and downloads identify the
+build receives a unique `0.19.0-rc.N` version; the tag and downloads identify the
 exact candidate. The number is the workflow run number, not a completed-checkpoint
 count. Rerunning a workflow retains its candidate identity across all platforms.
 

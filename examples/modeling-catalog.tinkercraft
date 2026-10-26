@@ -1,0 +1,224 @@
+{
+  "format": "shapeworkshop",
+  "version": 10,
+  "units": "mm",
+  "name": "Lettering and shapes",
+  "parts": [
+    {
+      "hole": false,
+      "color": [
+        141,
+        190,
+        206
+      ],
+      "segments": 48,
+      "hidden": false,
+      "locked": false,
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "id": "lettering-example",
+      "name": "Lettering example",
+      "kind": "group",
+      "position": [
+        0,
+        0,
+        0
+      ],
+      "scale": 1,
+      "children": [
+        {
+          "hole": false,
+          "color": [
+            141,
+            190,
+            206
+          ],
+          "segments": 48,
+          "hidden": false,
+          "locked": false,
+          "rotation": [
+            0,
+            0,
+            0
+          ],
+          "id": "label-plate",
+          "name": "Label plate",
+          "kind": "box",
+          "position": [
+            40,
+            15,
+            2.5
+          ],
+          "size": [
+            80,
+            30,
+            5
+          ]
+        },
+        {
+          "hole": false,
+          "color": [
+            221,
+            163,
+            87
+          ],
+          "segments": 48,
+          "hidden": false,
+          "locked": false,
+          "rotation": [
+            0,
+            0,
+            0
+          ],
+          "id": "raised-label",
+          "name": "Raised label",
+          "kind": "text",
+          "position": [
+            40,
+            22,
+            5.6
+          ],
+          "size": [
+            60,
+            9,
+            2
+          ],
+          "content": "TINKER",
+          "mirrored": [
+            false,
+            false,
+            false
+          ]
+        },
+        {
+          "hole": true,
+          "color": [
+            141,
+            190,
+            206
+          ],
+          "segments": 48,
+          "hidden": false,
+          "locked": false,
+          "rotation": [
+            0,
+            0,
+            0
+          ],
+          "id": "recessed-label",
+          "name": "Recessed label",
+          "kind": "text",
+          "position": [
+            40,
+            8,
+            4.5
+          ],
+          "size": [
+            45,
+            8,
+            2
+          ],
+          "content": "CRAFT",
+          "mirrored": [
+            false,
+            false,
+            false
+          ]
+        }
+      ]
+    },
+    {
+      "hole": false,
+      "color": [
+        141,
+        190,
+        206
+      ],
+      "segments": 48,
+      "hidden": false,
+      "locked": false,
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "id": "tube-sample",
+      "name": "Tube sample",
+      "kind": "tube",
+      "position": [
+        100,
+        15,
+        10
+      ],
+      "size": [
+        20,
+        20,
+        20
+      ],
+      "bore": 0.6
+    },
+    {
+      "hole": false,
+      "color": [
+        141,
+        190,
+        206
+      ],
+      "segments": 48,
+      "hidden": false,
+      "locked": false,
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "id": "torus-sample",
+      "name": "Torus sample",
+      "kind": "torus",
+      "position": [
+        130,
+        15,
+        3
+      ],
+      "size": [
+        20,
+        20,
+        6
+      ],
+      "bore": 0.4
+    },
+    {
+      "hole": false,
+      "color": [
+        141,
+        190,
+        206
+      ],
+      "segments": 48,
+      "hidden": false,
+      "locked": false,
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "id": "polygon-sample",
+      "name": "Polygon sample",
+      "kind": "polygon",
+      "position": [
+        160,
+        15,
+        10
+      ],
+      "size": [
+        20,
+        20,
+        20
+      ],
+      "sides": 6
+    }
+  ]
+}

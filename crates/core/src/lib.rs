@@ -15,3 +15,5 @@ pub mod preferences;
 pub mod three_mf;
 
 pub mod modeling;
+
+pub mod catalog;

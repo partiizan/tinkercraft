@@ -101,3 +101,9 @@ still uses the CPU rasterizer.
 files default to 96, preserving prior tessellation. Curved primitives accept
 multiples of 4 from 24 through 192. Keep a copy of older project files if you need
 to reopen them in an earlier app; schema-9 saves require this version or newer.
+
+## Schema 10 · procedural shapes and lettering
+
+0.19 reads schemas 1–10 and writes 10. New tube/torus/polygon/text shape variants
+store editable parameters. Text also records mirror flags. Existing geometry and
+default curve resolution are unchanged. Keep old project copies for older apps.

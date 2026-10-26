@@ -118,3 +118,12 @@ Measurement/ruler tools, nested component editing, distribution, repeated copies
 and curve resolution are implemented together in the 0.18 RC series. See
 CHECKPOINT21-25.md for limits and validation. Hands-on acceptance is deferred until
 this batch is delivered; checkpoints 18–20 remain open acceptance/release gates.
+
+## Checkpoints 26–30 · shape and selection tools
+
+Tube/torus/polygon shapes, editable block lettering, reference-object alignment,
+independent multi-object transforms and a searchable object browser are delivered
+in the 0.19 RC series. See CHECKPOINT26-30.md for limits and validation. More
+complete workplanes, SVG/custom-font extrusion, viewport child manipulation, GPU
+rendering and further interaction polish remain future modeling work. Hands-on
+acceptance remains deferred until feature work is finished.

@@ -2,7 +2,7 @@
 
 ## Current release-candidate policy
 
-New main-branch builds publish as GitHub **Pre-releases**, versioned `0.18.0-rc.N`,
+New main-branch builds publish as GitHub **Pre-releases**, versioned `0.19.0-rc.N`,
 after all three native jobs pass. Manual workflow runs on main do the same;
 pull requests and failed builds do not publish. A rerun keeps the same candidate
 number so partial retries cannot mix different platform versions. Already published
@@ -58,3 +58,12 @@ Measurement/ruler tools, nested component editing, distribution, repeated copies
 and curve resolution are implemented together in the 0.18 RC series. See
 CHECKPOINT21-25.md for limits and validation. Hands-on acceptance is deferred until
 this batch is delivered; checkpoints 18–20 remain open acceptance/release gates.
+
+## Checkpoints 26–30 · shape and selection tools
+
+Tube/torus/polygon shapes, editable block lettering, reference-object alignment,
+independent multi-object transforms and a searchable object browser are delivered
+in the 0.19 RC series. See CHECKPOINT26-30.md for limits and validation. More
+complete workplanes, SVG/custom-font extrusion, viewport child manipulation, GPU
+rendering and further interaction polish remain future modeling work. Hands-on
+acceptance remains deferred until feature work is finished.

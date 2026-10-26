@@ -25,6 +25,24 @@ pub enum Shape {
     Roof {
         size: Vec3,
     },
+    Tube {
+        size: Vec3,
+        bore: f64,
+    },
+    Torus {
+        size: Vec3,
+        bore: f64,
+    },
+    Polygon {
+        size: Vec3,
+        sides: u32,
+    },
+    Text {
+        size: Vec3,
+        content: String,
+        #[serde(default)]
+        mirrored: [bool; 3],
+    },
     Mesh {
         size: Vec3,
         vertices: Vec<Vec3>,
@@ -100,6 +118,17 @@ impl Node {
                 "Cone" => Shape::Cone { size },
                 "Wedge" => Shape::Wedge { size },
                 "Roof" => Shape::Roof { size },
+                "Tube" => Shape::Tube { size, bore: 0.6 },
+                "Torus" => Shape::Torus {
+                    size: [20., 20., 6.],
+                    bore: 0.4,
+                },
+                "Polygon" => Shape::Polygon { size, sides: 6 },
+                "Text" => Shape::Text {
+                    size: [40., 10., 2.],
+                    content: "LABEL".into(),
+                    mirrored: [false; 3],
+                },
                 _ => Shape::Box { size },
             },
         }
@@ -112,6 +141,10 @@ impl Node {
             | Shape::Cone { size }
             | Shape::Wedge { size }
             | Shape::Roof { size }
+            | Shape::Tube { size, .. }
+            | Shape::Torus { size, .. }
+            | Shape::Polygon { size, .. }
+            | Shape::Text { size, .. }
             | Shape::Mesh { size, .. } => Some(*size),
             _ => None,
         }
@@ -121,8 +154,13 @@ impl Node {
             Shape::Box { size }
             | Shape::Wedge { size }
             | Shape::Roof { size }
+            | Shape::Text { size, .. }
             | Shape::Mesh { size, .. } => size[axis] = value,
-            Shape::Cylinder { size } | Shape::Cone { size } => {
+            Shape::Cylinder { size }
+            | Shape::Cone { size }
+            | Shape::Tube { size, .. }
+            | Shape::Torus { size, .. }
+            | Shape::Polygon { size, .. } => {
                 size[axis] = value;
                 if axis < 2 {
                     size[0] = value;
@@ -157,6 +195,10 @@ impl Node {
             Shape::Mesh { .. } => "Mesh",
             Shape::Wedge { .. } => "Wedge",
             Shape::Roof { .. } => "Roof",
+            Shape::Tube { .. } => "Tube",
+            Shape::Torus { .. } => "Torus",
+            Shape::Polygon { .. } => "Polygon",
+            Shape::Text { .. } => "Text",
         }
     }
 }
@@ -187,7 +229,7 @@ impl Default for Project {
     fn default() -> Self {
         Self {
             format: "shapeworkshop".into(),
-            version: 9,
+            version: 10,
             units: "mm".into(),
             name: "Untitled".into(),
             parts: vec![],
@@ -200,7 +242,7 @@ fn text(s: &str, max: usize) -> bool {
 impl Project {
     pub fn validate(&self) -> Result<()> {
         ensure!(
-            self.format == "shapeworkshop" && self.version == 9 && self.units == "mm",
+            self.format == "shapeworkshop" && self.version == 10 && self.units == "mm",
             "Unsupported project format/version/units"
         );
         ensure!(text(&self.name, 100), "Invalid project name");
@@ -271,13 +313,29 @@ impl Project {
                 );
                 if matches!(
                     n.shape,
-                    Shape::Cylinder { .. } | Shape::Cone { .. } | Shape::Sphere { .. }
+                    Shape::Cylinder { .. }
+                        | Shape::Cone { .. }
+                        | Shape::Sphere { .. }
+                        | Shape::Tube { .. }
+                        | Shape::Torus { .. }
+                        | Shape::Polygon { .. }
                 ) {
                     ensure!(size[0] == size[1], "Circular diameters must match");
                 }
                 if matches!(n.shape, Shape::Sphere { .. }) {
                     ensure!(size[0] == size[2], "Sphere diameters must match");
                 }
+            }
+            match &n.shape {
+                Shape::Tube { bore, .. } | Shape::Torus { bore, .. } => ensure!(
+                    bore.is_finite() && (0.05..=0.95).contains(bore),
+                    "Bore ratio must be 0.05–0.95"
+                ),
+                Shape::Polygon { sides, .. } => {
+                    ensure!((3..=32).contains(sides), "Polygon needs 3–32 sides")
+                }
+                Shape::Text { content, .. } => crate::catalog::validate_text(content)?,
+                _ => {}
             }
             if let Shape::Mesh {
                 vertices,
@@ -307,16 +365,31 @@ impl Project {
             self.parts.iter().map(triangles).sum::<usize>() <= crate::stl::MAX_TRIANGLES,
             "Project imported-mesh limit: 20,000 triangles"
         );
+        fn letters(n: &Node) -> usize {
+            match &n.shape {
+                Shape::Text { content, .. } => content.len(),
+                Shape::Group { children, .. } => children.iter().map(letters).sum(),
+                _ => 0,
+            }
+        }
+        ensure!(
+            self.parts.iter().map(letters).sum::<usize>() <= 256,
+            "Project text limit: 256 characters"
+        );
         Ok(())
     }
     pub fn parse(bytes: &[u8]) -> Result<Self> {
         ensure!(bytes.len() <= MAX_BYTES, "Project exceeds 32 MB");
         let mut v: serde_json::Value = serde_json::from_slice(bytes)?;
         let version = v["version"].as_u64().unwrap_or(0);
-        ensure!((1..=9).contains(&version), "Unsupported project version");
+        ensure!((1..=10).contains(&version), "Unsupported project version");
         fn migrate(v: &mut serde_json::Value, version: u64, depth: usize) -> Result<()> {
             ensure!(depth <= 8, "Group nesting limit exceeded");
             let kind = v["kind"].as_str().unwrap_or("");
+            ensure!(
+                version >= 10 || !matches!(kind, "tube" | "torus" | "polygon" | "text"),
+                "Shape requires schema 10"
+            );
             ensure!(
                 version >= 7
                     || (!v["hidden"].as_bool().unwrap_or(false)
@@ -352,7 +425,7 @@ impl Project {
                 migrate(n, version, 0)?;
             }
         }
-        v["version"] = 9.into();
+        v["version"] = 10.into();
         let p: Self = serde_json::from_value(v)?;
         p.validate()?;
         crate::stl::validate_project_meshes(&p)?;

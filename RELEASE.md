@@ -2,7 +2,7 @@
 
 ## Current release-candidate policy
 
-New main-branch builds publish as GitHub **Pre-releases**, versioned `0.17.0-rc.N`,
+New main-branch builds publish as GitHub **Pre-releases**, versioned `0.19.0-rc.N`,
 after all three native jobs pass. Manual workflow runs on main do the same;
 pull requests and failed builds do not publish. A rerun keeps the same candidate
 number so partial retries cannot mix different platform versions. Already published

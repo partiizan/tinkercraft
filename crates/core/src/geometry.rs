@@ -11,6 +11,9 @@ pub fn points(n: &Node) -> Vec<Vec3> {
     let Some(s) = n.size() else { return vec![] };
     let mut p = vec![];
     match &n.shape {
+        Shape::Tube { .. } | Shape::Torus { .. } | Shape::Polygon { .. } | Shape::Text { .. } => {
+            return crate::catalog::points(n);
+        }
         Shape::Box { .. } => {
             for x in [-0.5, 0.5] {
                 for y in [-0.5, 0.5] {
@@ -78,6 +81,9 @@ fn mv(v: Vec3) -> MVec {
 }
 pub fn primitive(n: &Node) -> Manifold {
     match &n.shape {
+        Shape::Tube { .. } | Shape::Torus { .. } | Shape::Polygon { .. } | Shape::Text { .. } => {
+            crate::catalog::primitive(n)
+        }
         Shape::Box { size } => Manifold::cube(mv(*size), true),
         Shape::Cylinder { size } => Manifold::cylinder_centered(
             size[2],

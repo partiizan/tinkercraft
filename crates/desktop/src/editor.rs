@@ -1,3 +1,4 @@
+mod advanced_ui;
 mod modeling_ui;
 use eframe::egui::{self, Color32, Pos2, Stroke, Vec2};
 use glam::{DVec2, DVec3};
@@ -807,7 +808,10 @@ if ui.add_enabled(self.selection.len()==1,egui::Button::new("Ungroup")).clicked(
  ui.small("Hide affects editing view only; all objects are included in cuts/export.");
 
  ui.separator();if ui.add_enabled(self.result.is_some(),egui::Button::new(if self.preview{"Back to editing"}else{"Preview full export"})).clicked(){self.preview = !self.preview;self.redraw=true;}ui.label(egui::RichText::new("Each group unions its solids and subtracts its holes.").small());if ui.button("Load plate example").clicked(){self.request(Pending::Demo)}ui.separator();ui.label("Drag background: orbit\nRight-drag: pan\nScroll: zoom\nShift-click: multiselect\nW / E / R: move / rotate / resize\nEsc: cancel handle drag");ui.separator();if ui.button("Modeling tools (M)").clicked(){self.commit_draft();self.tools.open=true;}
-if ui.button("Edit group contents (F2)").clicked(){self.start_group_edit();}});});
+if ui.button("Edit group contents (F2)").clicked(){self.start_group_edit();}
+if ui.button("Object browser").clicked(){self.commit_draft();self.tools.scene=true;}
+ui.separator();ui.label("More shapes");egui::Grid::new("more_shapes").num_columns(2).show(ui,|ui|{for(i,kind)in ["Tube","Torus","Polygon","Text"].iter().enumerate(){if crate::palette::button(ui,kind).clicked(){self.add_catalog_shape(kind);}
+if i%2==1{ui.end_row();}}});});});
     }
     fn inspector(&mut self, ctx: &egui::Context) {
         egui::SidePanel::right("inspector").exact_width(245.).show(ctx,|ui|{egui::ScrollArea::vertical().show(ui,|ui|{
@@ -815,10 +819,11 @@ let protected=self.history.project.parts.iter().any(|n|self.selection.contains(&
 if protected {ui.label("Hidden or locked: show/unlock to edit.");}
 ui.add_enabled_ui(!protected,|ui|{let mut commit=false;if let Some(n)=&mut self.draft{ui.heading(&n.name);ui.horizontal(|ui|{if ui.selectable_label(!n.hole,"Solid").clicked(){n.hole=false;commit=true}
 if ui.selectable_label(n.hole,"Hole").clicked(){n.hole=true;commit=true}});ui.separator();if let Shape::Group{scale,children}=&mut n.shape{ui.label(format!("{} components · F2 to edit contents",children.len()));ui.label("Uniform scale");commit|=number(ui,scale,0.01,0.00001..=100000.);}else{ui.label("Dimensions · mm");let size=n.size().unwrap();for(axis,v)in size.iter().enumerate(){if n.kind()=="Sphere"&&axis>0{continue}
-if matches!(n.shape,Shape::Cylinder{..}|Shape::Cone{..})&&axis==1{continue}let label=if matches!(n.shape,Shape::Box{..}|Shape::Wedge{..}|Shape::Roof{..}|Shape::Mesh{..}){["Width X","Depth Y","Height Z"][axis]}else if axis==0{"Diameter"}else{"Height Z"};let mut value=*v;ui.horizontal(|ui|{ui.label(label);if number(ui,&mut value,0.1,0.01..=1000.){commit=true} });n.set_dimension(axis,value);}}
+if matches!(n.shape,Shape::Cylinder{..}|Shape::Cone{..}|Shape::Tube{..}|Shape::Torus{..}|Shape::Polygon{..})&&axis==1{continue}let label=if matches!(n.shape,Shape::Box{..}|Shape::Wedge{..}|Shape::Roof{..}|Shape::Text{..}|Shape::Mesh{..}){["Width X","Depth Y","Height Z"][axis]}else if axis==0{"Diameter"}else{"Height Z"};let mut value=*v;ui.horizontal(|ui|{ui.label(label);if number(ui,&mut value,0.1,0.01..=1000.){commit=true} });n.set_dimension(axis,value);}}
+ commit|=advanced_ui::parameters(ui,n);
  ui.separator();ui.label("Position · mm");for axis in 0..3{ui.horizontal(|ui|{ui.label(["X","Y","Z"][axis]);commit|=number(ui,&mut n.position[axis],0.1,-10000. ..=10000.);});}ui.separator();ui.label("Rotation · degrees");for axis in 0..3{ui.horizontal(|ui|{ui.label(["X","Y","Z"][axis]);commit|=number(ui,&mut n.rotation[axis],1.,-3600. ..=3600.);});}
  if !n.hole { ui.separator(); ui.horizontal(|ui| { ui.label("Color"); let mut color=n.color; if ui.color_edit_button_srgb(&mut color).changed() { n.set_color_recursive(color); self.color_editing=true; } }); if matches!(n.shape,Shape::Group{..}) { ui.small("Choosing a color recolors every component; use Edit group contents to color separately."); } }
- }else{ui.heading(format!("{} selected",self.selection.len()));ui.label("Group objects to move or rotate them together.");}
+ }else{ui.heading(format!("{} selected",self.selection.len()));ui.label("Use Modeling tools (M) to transform selections together.");}
 if commit || (self.color_editing && !ctx.input(|i| i.pointer.any_down())) {self.color_editing=false;self.commit_draft();}ui.separator();ui.horizontal(|ui|{if ui.button("Duplicate").clicked(){self.operation(|p,s|Ok(Some(operations::duplicate(p,s))));}
 if ui.button("Delete").clicked(){self.operation(|p,s|{p.parts.retain(|n|!s.contains(&n.id));Ok(None)});}});if ui.button("Drop to workplane").clicked(){self.operation(|p,s|{operations::drop_to_plane(p,s)?;Ok(None)});}ui.separator();ui.heading("Align selection");ui.small("Combined source bounds, before cuts");for axis in 0..3{ui.horizontal(|ui|{ui.label(["X","Y","Z"][axis]);for(mode,label)in[(-1,"Min"),(0,"Center"),(1,"Max")]{if ui.add_enabled(self.selection.len()>1,egui::Button::new(label)).clicked(){self.operation(|p,s|{operations::align(p,s,axis,mode)?;Ok(None)});}}});}ui.separator();ui.heading("Mirror selection");ui.small("In place about the selection center");ui.horizontal(|ui|{for(axis,label)in["X","Y","Z"].iter().enumerate(){if ui.button(*label).clicked(){self.operation(|p,s|{operations::mirror(p,s,axis)?;Ok(None)});}}});ui.separator();ui.small("Z up · millimeters\nShift-click selects multiple objects. Ungrouping exposes holes to sibling scope. Hole groups must be made Solid first.");});});});
     }
@@ -1370,6 +1375,7 @@ impl eframe::App for Editor {
         self.import_modal(ctx);
         self.preferences_modal(ctx);
         self.modeling_tools(ctx);
+        self.scene_browser(ctx);
         if self.export_requested && self.ready == self.revision && self.pending.is_none() {
             self.write_export(ctx);
         }

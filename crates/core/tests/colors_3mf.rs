@@ -77,7 +77,7 @@ fn recolor_history_group_ungroup_and_legacy_defaults() {
         history.project
     );
     let legacy = Project::parse(include_bytes!("../../../examples/plate.tinkercraft")).unwrap();
-    assert_eq!(legacy.version, 9);
+    assert_eq!(legacy.version, 10);
     assert_eq!(legacy.parts[0].color, document::default_color());
     let mut json = serde_json::to_value(&legacy).unwrap();
     json["parts"][0]["color"] = serde_json::json!([256, 0, 0]);

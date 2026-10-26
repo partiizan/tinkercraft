@@ -83,3 +83,21 @@ changes rebuilds cuts in one undo step; Cancel discards the staged changes.
 The ruler can use numeric XYZ points or two snapped clicks on Z=0. Press Escape to
 cancel picking. Selection dimensions and gaps use source bounding boxes before
 cuts, not exact curved-surface distances. Default curve resolution remains 96.
+
+## Shapes, labels and selection workflows
+
+Use More shapes in the left panel for Tube, Torus, Polygon or Text. Change bore
+ratio, polygon sides or lettering in the inspector. Text supports A–Z, digits,
+spaces and - . _ +; its width fits the full label. New lettering starts slightly embedded in the top
+of the selected solid’s source bounds (otherwise on Z=0). Make lettering a Hole and overlap
+it with a solid to engrave, or leave it Solid and overlap a base for raised text.
+Group to apply the result. The modeling-catalog example shows both approaches.
+
+Press M and expand Transform selection together to move, rotate and uniformly
+scale multiple objects without grouping. Apply uses one undo step. Expand Align
+to reference object to align selected objects to another object's bounds; choose
+each edge and an offset. The reference stays fixed, including when locked.
+
+Open Object browser from the left panel to search names/types/nested components,
+inspect group contents, select matches, invert selection or rename objects. Batch
+names receive numbered suffixes. Use F2 on a selected group to edit components.

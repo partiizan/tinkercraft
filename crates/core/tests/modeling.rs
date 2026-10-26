@@ -173,7 +173,7 @@ fn resolution_changes_mesh_and_preserves_legacy() {
         n.as_object_mut().unwrap().remove("segments");
     }
     let p = Project::parse(&serde_json::to_vec(&legacy).unwrap()).unwrap();
-    assert_eq!(p.version, 9);
+    assert_eq!(p.version, 10);
     assert!(p.parts.iter().all(|n| n.segments == 96));
     near(
         evaluate(&p).unwrap().volume(),

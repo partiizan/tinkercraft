@@ -41,6 +41,33 @@ pub fn button(ui: &mut egui::Ui, kind: &str) -> egui::Response {
         painter.add(egui::Shape::convex_polygon(points, color, Stroke::NONE));
     };
     match kind {
+        "Tube" | "Torus" => {
+            painter.circle_filled(center, 10., mid);
+            painter.circle_filled(center, 5., visuals.bg_fill);
+            painter.circle_stroke(center, 9., Stroke::new(2_f32, light));
+        }
+        "Polygon" => {
+            polygon(
+                &[
+                    (-11., 0.),
+                    (-5., -9.),
+                    (5., -9.),
+                    (11., 0.),
+                    (5., 9.),
+                    (-5., 9.),
+                ],
+                light,
+            );
+        }
+        "Text" => {
+            painter.text(
+                center,
+                egui::Align2::CENTER_CENTER,
+                "Ab",
+                egui::FontId::monospace(20.),
+                light,
+            );
+        }
         "Sphere" => {
             painter.circle_filled(center, 10., dark);
             painter.circle_filled(center + Vec2::new(-1.5, -1.5), 8., mid);

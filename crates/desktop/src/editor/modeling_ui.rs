@@ -7,6 +7,19 @@ pub(super) struct Tools {
     pub ruler: [[f64; 3]; 2],
     pub show_ruler: bool,
     pub picking: u8,
+    pub scene: bool,
+    pub query: String,
+    pub rename: String,
+    pub reference: String,
+    pub ref_axis: usize,
+    pub source_mode: i32,
+    pub target_mode: i32,
+    pub offset: f64,
+    pub translation: [f64; 3],
+    pub rotation: [f64; 3],
+    pub scale: f64,
+    pub custom_pivot: bool,
+    pub transform_pivot: [f64; 3],
     axis: usize,
     gaps: bool,
     copies: usize,
@@ -25,6 +38,19 @@ impl Default for Tools {
             ruler: [[0.; 3], [20., 0., 0.]],
             show_ruler: false,
             picking: 0,
+            scene: false,
+            query: String::new(),
+            rename: String::new(),
+            reference: String::new(),
+            ref_axis: 0,
+            source_mode: 0,
+            target_mode: 0,
+            offset: 0.,
+            translation: [0.; 3],
+            rotation: [0.; 3],
+            scale: 1.,
+            custom_pivot: false,
+            transform_pivot: [0.; 3],
             axis: 0,
             gaps: false,
             copies: 3,
@@ -53,7 +79,11 @@ fn xyz(ui: &mut egui::Ui, values: &mut [f64; 3], range: std::ops::RangeInclusive
 fn curved(n: &Node) -> bool {
     matches!(
         n.shape,
-        Shape::Cylinder { .. } | Shape::Cone { .. } | Shape::Sphere { .. }
+        Shape::Cylinder { .. }
+            | Shape::Cone { .. }
+            | Shape::Sphere { .. }
+            | Shape::Tube { .. }
+            | Shape::Torus { .. }
     )
 }
 fn resolution(ui: &mut egui::Ui, segments: &mut u32) {
@@ -86,8 +116,14 @@ fn child_editor(ui: &mut egui::Ui, n: &mut Node, depth: usize) {
                     ui.label("Dimensions · mm");
                     for (axis, old) in size.iter().enumerate() {
                         if (n.kind() == "Sphere" && axis > 0)
-                            || (matches!(n.shape, Shape::Cylinder { .. } | Shape::Cone { .. })
-                                && axis == 1)
+                            || (matches!(
+                                n.shape,
+                                Shape::Cylinder { .. }
+                                    | Shape::Cone { .. }
+                                    | Shape::Tube { .. }
+                                    | Shape::Torus { .. }
+                                    | Shape::Polygon { .. }
+                            ) && axis == 1)
                         {
                             continue;
                         }
@@ -106,6 +142,7 @@ fn child_editor(ui: &mut egui::Ui, n: &mut Node, depth: usize) {
                     }
                 });
             }
+            super::advanced_ui::parameters(ui, n);
             if curved(n) {
                 resolution(ui, &mut n.segments);
             }
@@ -162,6 +199,8 @@ impl Editor {
         if self.tools.open {
             let mut open = true;
             egui::Window::new("Modeling tools").open(&mut open).default_pos([230.,120.]).default_width(460.).vscroll(true).show(ctx,|ui|{
+                self.advanced_tools(ui);
+                ui.separator();
                 ui.heading("Measurements · mm");
                 ui.small("World-axis source bounds, before cuts; ruler points are independent of geometry.");
                 if let Some(b)=modeling::selection_bounds(&self.history.project,&self.selection){
@@ -208,11 +247,11 @@ impl Editor {
                 }
                 ui.small("Selection is repeated as a set. Groups keep their cuts; copies receive new IDs. Maximum 100 total nodes.");
                 ui.separator();ui.heading("Curved primitives");resolution(ui,&mut self.tools.segments);
-                ui.small("Cylinder/cone segments; spheres use half as many longitudes. 96 preserves existing geometry. Higher values cost more processing.");
+                ui.small("Cylinder/cone/tube/torus segments; spheres use half as many longitudes. 96 preserves existing geometry. Higher values cost more processing.");
                 if ui.button("Apply resolution to selected curved shapes").clicked(){
                     self.commit_draft();let segments=self.tools.segments;
                     self.operation(|p,s|{let mut count=0;for n in p.parts.iter_mut().filter(|n|s.contains(&n.id)&&curved(n)){n.segments=segments;count+=1;}
-                        anyhow::ensure!(count>0,"Select a cylinder, cone or sphere; use Edit group contents for children");Ok(None)});
+                        anyhow::ensure!(count>0,"Select a cylinder, cone, sphere, tube or torus; use Edit group contents for children");Ok(None)});
                 }
             });
             self.tools.open = open;

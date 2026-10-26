@@ -16,7 +16,7 @@ fn group_demo() -> Project {
 #[test]
 fn legacy_roundtrip() {
     let p = Project::demo();
-    assert_eq!(p.version, 9);
+    assert_eq!(p.version, 10);
     assert_eq!(p, Project::parse(&p.bytes().unwrap()).unwrap());
     let grouped = Project::parse(include_bytes!("../../../examples/group.tinkercraft")).unwrap();
     assert!(matches!(grouped.parts[0].shape, Shape::Group { .. }));
@@ -32,7 +32,7 @@ fn malformed_documents() {
         assert!(Project::parse(&bytes).is_err());
     }
     let mut v: serde_json::Value = serde_json::from_slice(&p.bytes().unwrap()).unwrap();
-    v["version"] = 10.into();
+    v["version"] = 11.into();
     assert!(Project::parse(&serde_json::to_vec(&v).unwrap()).is_err());
     v["version"] = 4.into();
     v["parts"][0].as_object_mut().unwrap().remove("rotation");

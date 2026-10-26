@@ -87,6 +87,10 @@ pub fn ungroup(p: &mut Project, id: &str) -> Result<Selection> {
             | Shape::Sphere { size }
             | Shape::Wedge { size }
             | Shape::Roof { size }
+            | Shape::Tube { size, .. }
+            | Shape::Torus { size, .. }
+            | Shape::Polygon { size, .. }
+            | Shape::Text { size, .. }
             | Shape::Mesh { size, .. } => *size = size.map(|s| s * scale),
         }
         ids.insert(child.id.clone());
@@ -161,6 +165,12 @@ pub fn mirror(p: &mut Project, ids: &Selection, axis: usize) -> Result<()> {
             // Wedge is symmetric only about local Y. Compose two reflections
             // into a proper rotation to preserve its sloping face.
             r *= s * DMat3::from_diagonal(DVec3::new(1., -1., 1.));
+        }
+        if matches!(n.shape, Shape::Polygon { sides, .. } if sides % 2 == 1) && axis == 0 {
+            r *= DMat3::from_rotation_z(std::f64::consts::PI);
+        }
+        if let Shape::Text { mirrored, .. } = &mut n.shape {
+            mirrored[axis] = !mirrored[axis];
         }
         if let Shape::Mesh {
             vertices,
